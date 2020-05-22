@@ -15,7 +15,8 @@ def status_cls(redis_mock_status):
 def test_status_init(redis_mock_status):
     s = Status(redis_mock_status, "root_path", "start_path", "end_path")
     assert s.active == "active"
-    assert s.results == "None"
+    assert s.results == []
+    assert s.results_str() == "None"
     assert isinstance(
         s.start_time,
         float

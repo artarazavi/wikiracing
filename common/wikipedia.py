@@ -29,18 +29,22 @@ class Wikipedia:
             payload["plcontinue"] = json_response.get("continue").get("plcontinue")
         return payload
 
+    @staticmethod
+    def get_request(params):
+        return requests.get("https://en.wikipedia.org/w/api.php", params).json()
+
     def scrape_page(self) -> List[str]:
-        payload = self.build_payload()
+        params = self.build_payload()
         all_links = list()
 
         # Interact with wiki API to get all links on a given page + continued links if any
         while True:
             logger.info("still getting links..")
-            json_response = requests.get("https://en.wikipedia.org/w/api.php", payload).json()
+            json_response = requests.get("https://en.wikipedia.org/w/api.php", params).json()
             links = json_response.get("query", {}).get("pages", [{}])[0].get("links", [])
             all_links += [link["title"] for link in links if link.get("title")]
-            if "batchcomplete" not in json_response:
-                payload = self.build_payload(json_response)
+            if "batchcomplete" not in json_response and len(json_response.keys())>1:
+                params = self.build_payload(json_response)
             else:
                 break
 

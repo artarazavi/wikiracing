@@ -97,7 +97,7 @@ class Status:
         return "None"
 
     def results_pending(self) -> bool:
-        return self.results == "None"
+        return self.results_str() == "None"
 
     @property
     def start_time(self) -> float:
