@@ -9,6 +9,7 @@ app = Flask(__name__)
 celery = get_celery_app()
 status_db = get_status_db()
 
+
 def build_root_path(start_path: str, end_path: str):
     return f"{start_path}-{end_path}"
 
@@ -19,7 +20,7 @@ def find(start_path: str, end_path: str) -> str:
 
     if Status.exists(status_db, root_path):
         status = Status(status_db, root_path)
-        return "Pending" if status.results_pending() else status.results
+        return "Pending" if status.results_pending() else status.results_str()
 
     # Initialize status
     status = Status(status_db, root_path, start_path, end_path)
@@ -33,6 +34,7 @@ def find(start_path: str, end_path: str) -> str:
         queue='find'
     )
 
+    # Assign associated task id to status table
     status.task_id = task.id
 
     return "Pending"

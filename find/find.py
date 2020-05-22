@@ -36,33 +36,16 @@ def found_in_page(status: 'Status', history: History, all_links: List[str]) -> b
     return False
 
 
-def pop_prev_pages(start_path: str, traversed_path: List[str]) -> List[str]:
-    if not traversed_path:
-        traversed_path = list()
-    if start_path in traversed_path:
-        while not True:
-            x = traversed_path.pop()
-            if x == start_path:
-                break
-    return traversed_path
-
-
 @app.task(name="tasks.find")
 def find(
     root_path: str,
     start_path: str,
-    traversed_path: List[str] = None,
 ):
     status = Status(status_db, root_path)
+
     # Dont start find if task is done
     if not status.is_active():
         return
-
-    if not traversed_path:
-        traversed_path = list()
-
-    traversed_path = pop_prev_pages(start_path, traversed_path)
-    traversed_path.append(start_path)
 
     # Populates history
     history = History(
@@ -71,8 +54,10 @@ def find(
         scores_db,
         traversed_db,
         start_path,
-        traversed_path
     )
+
+    if start_path == status.start_path:
+        history.traversed_path = [status.start_path]
 
     if not history.is_visited(start_path):
         history.add_to_visited(start_path)
@@ -86,6 +71,11 @@ def find(
 
         # score found links
         nlp_scores = NLP(status, history).score_links(all_links)
+
+        # set their new traversed paths
+        history.bulk_add_to_new_links_traversed_paths(all_links)
+
+        # add them onto scores set
         history.bulk_add_to_scores(nlp_scores)
 
     else:
@@ -100,7 +90,6 @@ def find(
         kwargs=dict(
             root_path=root_path,
             start_path=history.next_highest_score(),
-            traversed_path=traversed_path,
         ),
         queue='find'
     )

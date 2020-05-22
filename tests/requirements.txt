@@ -1,0 +1,5 @@
+pytest_redis
+celery
+redis
+requests
+flask

@@ -1,6 +1,6 @@
 from redis import Redis
 from datetime import datetime
-from typing import List
+from typing import List, Union
 import json
 from .config import get_celery_app
 import sys
@@ -73,27 +73,28 @@ class Status:
     def active(self) -> str:
         return self.get_from_redis("active")
 
-    @active.setter
-    def active(self, value):
-        with self.redis_client.lock("active-lock"):
-            self.set_to_redis("active", value)
-
     def set_no_longer_active(self):
-        self.active = "done"
+        with self.redis_client.lock("active-lock"):
+            self.set_to_redis("active", "done")
 
     def is_active(self) -> bool:
         return self.active == "active"
 
     @property
-    def results(self) -> str:
+    def results(self) -> List[str]:
         if self.get_from_redis("results") != "None":
-            return json.loads(self.get_from_redis("results"))
-        return "None"
+            return json.loads(self.redis_client.hget(self.root_path, "results"))
+        return list()
 
     @results.setter
     def results(self, traversed_path: List[str]):
         with self.redis_client.lock("results-lock"):
             self.set_to_redis("results", json.dumps(traversed_path))
+
+    def results_str(self) -> str:
+        if self.get_from_redis("results") != "None":
+            return self.redis_client.hget(self.root_path, "results")
+        return "None"
 
     def results_pending(self) -> bool:
         return self.results == "None"
@@ -107,7 +108,7 @@ class Status:
         self.set_to_redis("start_time", value)
 
     @property
-    def end_time(self) -> str:
+    def end_time(self) -> Union[str, float]:
         if self.get_from_redis("end_time") != "None":
             return float(self.get_from_redis("end_time"))
         return "None"

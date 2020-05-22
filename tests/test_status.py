@@ -1,10 +1,19 @@
 from pytest_redis import factories
 from common.status import Status
-redis_mock = factories.redisdb('redis_nooproc')
+import pytest
+redis_proc = factories.redis_proc(host="redis", port=6379, logsdir='/tmp')
+redis_mock_status = factories.redisdb('redis_nooproc')
 
 
-def test_status_init(redis_mock):
-    s = Status(redis_mock, "root_path", "start_path", "end_path")
+@pytest.fixture(scope='function')
+@pytest.mark.usefixtures('redis_mock_status')
+def status_cls(redis_mock_status):
+    return Status(redis_mock_status, "root_path", "start_path", "end_path")
+
+
+@pytest.mark.usefixtures('redis_mock_status')
+def test_status_init(redis_mock_status):
+    s = Status(redis_mock_status, "root_path", "start_path", "end_path")
     assert s.active == "active"
     assert s.results == "None"
     assert isinstance(
@@ -17,104 +26,110 @@ def test_status_init(redis_mock):
     assert s.end_path == "end_path"
 
 
-def test_exists(redis_mock):
-    assert Status.exists(redis_mock, "root_path") is False
-    Status(redis_mock, "root_path", "start_path", "end_path")
-    assert Status.exists(redis_mock, "root_path") is True
+@pytest.mark.usefixtures('redis_mock_status')
+def test_exists(redis_mock_status):
+    assert Status.exists(redis_mock_status, "root_path") is False
+    Status(redis_mock_status, "root_path", "start_path", "end_path")
+    assert Status.exists(redis_mock_status, "root_path") is True
 
 
-def test_get_from_redis(redis_mock):
-    s = Status(redis_mock, "root_path", "start_path", "end_path")
-    assert s.get_from_redis("active") == "active"
-
-
-def test_set_to_redis(redis_mock):
+@pytest.mark.usefixtures('status_cls')
+def test_set_to_redis(status_cls):
     value = "done"
-    s = Status(redis_mock, "root_path", "start_path", "end_path")
-    assert s.get_from_redis("active") == "active"
-    s.set_to_redis("active", value)
-    assert s.get_from_redis("active") == value
+    assert status_cls.get_from_redis("active") == "active"
+    status_cls.set_to_redis("active", value)
+    assert status_cls.get_from_redis("active") == value
 
 
-def test_finalize_results(redis_mock):
+@pytest.mark.usefixtures('status_cls')
+def test_finalize_results(status_cls):
     path = ["path1", "path2", "path3"]
-    s = Status(redis_mock, "root_path", "start_path", "end_path")
-    s.finalize_results(path)
+    status_cls.finalize_results(path)
     assert isinstance(
-        s.end_time,
+        status_cls.end_time,
         float
     )
-    assert s.is_active() is False
-    assert s.results == path
+    assert status_cls.is_active() is False
+    assert status_cls.results == path
 
 
-def test_set_no_longer_active(redis_mock):
-    s = Status(redis_mock, "root_path", "start_path", "end_path")
-    s.set_no_longer_active()
-    assert s.active == "done"
+@pytest.mark.usefixtures('status_cls')
+def test_set_no_longer_active(status_cls):
+    status_cls.set_no_longer_active()
+    assert status_cls.active == "done"
+
+# TODO fix this
+@pytest.mark.usefixtures('status_cls')
+def test_unknown_status(status_cls):
+    assert status_cls.is_active() is True
+    status_cls.set_to_redis("active", "Broken")
+    assert status_cls.is_active() is False
+    status_cls.set_to_redis("active", "active")
+    assert status_cls.is_active() is True
 
 
-def test_is_active(redis_mock):
-    s = Status(redis_mock, "root_path", "start_path", "end_path")
-    assert s.is_active() is True
-    s.set_no_longer_active()
-    assert s.is_active() is False
+@pytest.mark.usefixtures('status_cls')
+def test_is_active(status_cls):
+    assert status_cls.is_active() is True
+    status_cls.set_no_longer_active()
+    assert status_cls.is_active() is False
 
 
-def test_results_pending(redis_mock):
+@pytest.mark.usefixtures('status_cls')
+def test_results_pending(status_cls):
     path = ["path1", "path2", "path3"]
-    s = Status(redis_mock, "root_path", "start_path", "end_path")
-    assert s.results_pending() is True
-    s.finalize_results(path)
-    assert s.results == path
+    assert status_cls.results_pending() is True
+    status_cls.finalize_results(path)
+    assert status_cls.results == path
 
 
-def test_set_and_get_end_time(redis_mock):
-    s = Status(redis_mock, "root_path", "start_path", "end_path")
-    s.set_end_time()
-    assert s.end_time != "None"
+@pytest.mark.usefixtures('status_cls')
+def test_set_and_get_end_time(status_cls):
+    status_cls.set_end_time()
+    assert status_cls.end_time != "None"
     assert isinstance(
-        s.end_time,
+        status_cls.end_time,
         float
     )
-    s.end_time = 2.5
-    assert s.end_time != "None"
+    status_cls.end_time = 2.5
+    assert status_cls.end_time != "None"
     assert isinstance(
-        s.end_time,
+        status_cls.end_time,
         float
     )
 
 
-def test_set_and_get_start_time(redis_mock):
-    s = Status(redis_mock, "root_path", "start_path", "end_path")
-    s.start_time = 2.5
+@pytest.mark.usefixtures('status_cls')
+def test_set_and_get_start_time(status_cls):
+    status_cls.start_time = 2.5
     assert isinstance(
-        s.start_time,
+        status_cls.start_time,
         float
     )
-    assert s.start_time == 2.5
+    assert status_cls.start_time == 2.5
 
 
-def test_set_and_get_paths(redis_mock):
+@pytest.mark.usefixtures('status_cls')
+def test_set_and_get_paths(status_cls):
     new_start_path = "new_start_path"
     new_end_path = "new_end_path"
-    s = Status(redis_mock, "root_path", "start_path", "end_path")
-    s.start_path = new_start_path
-    assert s.start_path == new_start_path
-    s.end_path = new_end_path
-    assert s.end_path == new_end_path
+    status_cls.start_path = new_start_path
+    assert status_cls.start_path == new_start_path
+    status_cls.end_path = new_end_path
+    assert status_cls.end_path == new_end_path
 
 
-def test_set_and_get_task_id(redis_mock):
+@pytest.mark.usefixtures('status_cls')
+def test_set_and_get_task_id(status_cls):
     new_id = "new_id"
-    s = Status(redis_mock, "root_path", "start_path", "end_path")
-    s.task_id = new_id
-    assert s.task_id == new_id
+    assert status_cls.task_id == "None"
+    status_cls.task_id = new_id
+    assert status_cls.task_id == new_id
 
 
-def set_and_get_results(redis_mock):
+@pytest.mark.usefixtures('status_cls')
+def set_and_get_results(status_cls):
     new_results = ["path1", "path2", "path3"]
-    s = Status(redis_mock, "root_path", "start_path", "end_path")
-    assert s.results == "None"
-    s.results = new_results
-    assert s.results == new_results
+    assert status_cls.results == "None"
+    status_cls.results = new_results
+    assert status_cls.results == new_results

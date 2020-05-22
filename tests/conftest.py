@@ -8,7 +8,7 @@ from common.config import get_celery_app
 import celery
 from unittest.mock import patch
 redis_mock = factories.redisdb('redis_nooproc')
-redis_proc = factories.redis_proc(host="localhost", port=6379, logsdir='/tmp')
+redis_proc = factories.redis_proc(host="redis", port=6379, logsdir='/tmp')
 from celery.contrib.testing.app import TestApp
 
 from kombu import Queue
@@ -23,7 +23,7 @@ from unittest.mock import MagicMock
 @pytest.fixture(scope='session')
 def celery_session_app(celery_session_app):
     # app = get_celery_app("tasks", 'redis://localhost:6379/0')
-    app = TestApp("tasks", backend='redis://localhost:6379/0', broker='redis://localhost:6379/0')
+    app = TestApp("tasks", backend='redis://redis:6379/0', broker='redis://redis:6379/0')
     # celery.tasks["tasks.add"] = MagicMock(return_value=10)
     from celery.contrib.testing import tasks
     #celery.conf = celery.conf

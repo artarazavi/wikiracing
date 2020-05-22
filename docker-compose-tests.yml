@@ -1,5 +1,19 @@
 version: "3"
 services:
+  # Test files
+  test:
+    volumes:
+      - .:/src/app
+    entrypoint: pytest
+    command: .
+    build:
+      context: .
+      dockerfile: tests/Dockerfile
+    depends_on:
+      - redis
+    env_file:
+      - .env
+
   # API Web Service
   api:
     volumes:
