@@ -1,0 +1,69 @@
+version: "3"
+services:
+  # API Web Service
+  api:
+    volumes:
+      - ./api/:/src/app/api
+      - ./common/:/src/app/api/common
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "127.0.0.1:5001:5001"
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    environment:
+      - FLUSH_ALL=true
+
+  # The find worker service
+  find:
+    volumes:
+      - ./find/:/src/app/find
+      - ./common/:/src/app/find/common
+    build:
+      context: find
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+    env_file:
+      - .env
+
+  # NLP Processor
+  nlp:
+    volumes:
+      - ./nlp/:/src/app/nlp
+      - ./common/:/src/app/nlp/common
+    build:
+      context: nlp
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+    env_file:
+      - .env
+
+  # Redis Admin UI
+  redis-commander:
+    image: rediscommander/redis-commander
+    restart: always
+    environment:
+      - REDIS_HOSTS=local:redis:6379:0,status:redis:6379:1,visited:redis:6379:2,scores:redis:6379:3, traversed:redis:6379:4
+    ports:
+      - "127.0.0.1:8081:8081"
+
+  # Redis DB
+  redis:
+    image: redis
+    container_name: redis
+    expose:
+      - 6379
+    ports:
+      - "127.0.0.1:6379:6379"
+
+  flower:
+    image: mher/flower
+    command: ["flower", "--broker=redis://redis:6379/0", "--port=8888"]
+    ports:
+      - 8888:8888
