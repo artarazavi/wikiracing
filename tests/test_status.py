@@ -3,8 +3,6 @@ from common.status import Status
 redis_mock = factories.redisdb('redis_nooproc')
 
 
-
-
 def test_status_init(redis_mock):
     s = Status(redis_mock, "root_path", "start_path", "end_path")
     assert s.active == "active"

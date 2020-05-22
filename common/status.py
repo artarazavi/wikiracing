@@ -107,10 +107,10 @@ class Status:
         self.set_to_redis("start_time", value)
 
     @property
-    def end_time(self) -> float:
+    def end_time(self) -> str:
         if self.get_from_redis("end_time") != "None":
             return float(self.get_from_redis("end_time"))
-        return -1.0
+        return "None"
 
     @end_time.setter
     def end_time(self, value: float):
