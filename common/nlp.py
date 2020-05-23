@@ -1,14 +1,12 @@
 from typing import List
 from celery import group
 from time import sleep
-from .config import (
-    logger,
-    get_celery_app,
-)
+
+from . import config
 
 from typing import TYPE_CHECKING, Any
 
-app = get_celery_app()
+app = config.get_celery_app()
 
 if TYPE_CHECKING:
     from .history import History

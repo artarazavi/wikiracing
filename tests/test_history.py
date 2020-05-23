@@ -10,15 +10,13 @@ redis_mock_scores = factories.redisdb('redis_nooproc', 3)
 redis_mock_traversed = factories.redisdb('redis_nooproc', 4)
 
 
-@pytest.fixture(scope='function')
-@pytest.mark.usefixtures('redis_mock_status', 'redis_mock_visited', 'redis_mock_scores', 'redis_mock_traversed')
+@pytest.fixture()
 def history_cls(redis_mock_status, redis_mock_visited, redis_mock_scores, redis_mock_traversed):
     status = Status(redis_mock_status, "root_path", "start_path", "end_path")
     history = History(status, redis_mock_visited, redis_mock_scores, redis_mock_traversed, "start_path")
     return history
 
 
-@pytest.mark.usefixtures('redis_mock_status', 'redis_mock_visited', 'redis_mock_scores', 'redis_mock_traversed')
 def test_history_init(redis_mock_status, redis_mock_visited, redis_mock_scores, redis_mock_traversed):
     status = Status(redis_mock_status, "root_path", "start_path", "end_path")
     history = History(status, redis_mock_visited, redis_mock_scores, redis_mock_traversed, "start_path")
@@ -30,7 +28,6 @@ def test_history_init(redis_mock_status, redis_mock_visited, redis_mock_scores, 
     assert history.start_path == "start_path"
 
 
-@pytest.mark.usefixtures('history_cls')
 def test_is_visited(history_cls):
     assert history_cls.visited == set()
     assert history_cls.is_visited("some_path") is False
@@ -38,28 +35,24 @@ def test_is_visited(history_cls):
     assert history_cls.is_visited("some_path") is True
 
 
-@pytest.mark.usefixtures('history_cls')
 def test_history_add_to_visited(history_cls):
     assert history_cls.visited == set()
     history_cls.add_to_visited("path")
     assert history_cls.visited == {b'path'}
 
 
-@pytest.mark.usefixtures('history_cls')
 def test_history_add_to_score(history_cls):
     assert history_cls.scores == list()
     history_cls.add_to_scores(0.7, "link1")
     assert history_cls.scores == [(b'link1', 0.7)]
 
 
-@pytest.mark.usefixtures('history_cls')
 def test_history_bulk_add_to_score(history_cls):
     assert history_cls.scores == list()
     history_cls.bulk_add_to_scores([["path1", 0.7], ["path2", 0.9], ["path3", 0.1]])
     assert history_cls.scores == [(b'path3', 0.1), (b'path1', 0.7), (b'path2', 0.9)]
 
 
-@pytest.mark.usefixtures('history_cls')
 def test_history_next_highest_score(history_cls):
     assert history_cls.scores == list()
     history_cls.bulk_add_to_scores([["path1", 0.7], ["path2", 0.9], ["path3", 0.1]])
@@ -67,14 +60,12 @@ def test_history_next_highest_score(history_cls):
     assert history_cls.next_highest_score() == "path2"
 
 
-@pytest.mark.usefixtures('history_cls')
 def test_set_traversed_path(history_cls):
     assert history_cls.traversed_path == []
     history_cls.traversed_path = ["path4", "path5", "path6"]
     assert history_cls.traversed_path == ["path4", "path5", "path6"]
 
 
-@pytest.mark.usefixtures('history_cls')
 def test_new_links_set_get_traversed_path(history_cls):
     assert history_cls.traversed_path == []
     history_cls.traversed_path = ["path4", "path5", "path6"]
@@ -82,7 +73,6 @@ def test_new_links_set_get_traversed_path(history_cls):
     assert history_cls.get_new_links_traversed_path("path7") == ["path4", "path5", "path6", "path7"]
 
 
-@pytest.mark.usefixtures('history_cls')
 def test_bulk_add_to_new_links_traversed_paths(history_cls):
     new_links = ["path4", "path5", "path6"]
     assert history_cls.traversed_path == []

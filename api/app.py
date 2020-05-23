@@ -1,20 +1,20 @@
 import celery.states as states
 from flask import Flask, url_for
 
-from common.config import get_celery_app , get_status_db, logger
 from common.status import Status
 
-app = Flask(__name__)
+from common import config
 
-celery = get_celery_app()
-status_db = get_status_db()
+app_router = Flask(__name__)
+app = config.get_celery_app()
+status_db = config.get_status_db()
 
 
 def build_root_path(start_path: str, end_path: str):
     return f"{start_path}-{end_path}"
 
 
-@app.route("/find/<string:start_path>/<string:end_path>")
+@app_router.route("/find/<string:start_path>/<string:end_path>")
 def find(start_path: str, end_path: str) -> str:
     root_path = build_root_path(start_path, end_path)
 
@@ -25,7 +25,7 @@ def find(start_path: str, end_path: str) -> str:
     # Initialize status
     status = Status(status_db, root_path, start_path, end_path)
 
-    task = celery.send_task(
+    task = app.send_task(
         "tasks.find",
         kwargs=dict(
             root_path=root_path,
@@ -40,19 +40,35 @@ def find(start_path: str, end_path: str) -> str:
     return "Pending"
 
 
+#########################################################
+# testing sample functions only used for sanity testing
+#########################################################
+
 # test function
-@app.route("/add/<int:param1>/<int:param2>")
+@app_router.route("/add/<int:param1>/<int:param2>")
 def add(param1: int, param2: int) -> str:
-    task = celery.send_task("tasks.add", args=[param1, param2], kwargs={})
+    task = app.send_task("tasks.add", args=[param1, param2], kwargs={})
     response = f"<a href='{url_for('check_task', task_id=task.id, external=True)}'>check status of {task.id} </a>"
     return response
 
 
 # test function
-@app.route("/check/<string:task_id>")
+@app_router.route("/check/<string:task_id>")
 def check_task(task_id: str) -> str:
-    res = celery.AsyncResult(task_id)
+    res = app.AsyncResult(task_id)
     if res.state == states.PENDING:
         return res.state
     else:
         return str(res.result)
+
+
+# test function
+@app.task(bind=True, name="tasks.mul")
+def mul(self, x: int, y: int):
+    return x * y
+
+
+@app.task(name="tasks.add", bound=True)
+def add(self, x: int, y: int) -> int:
+    sleep(5)
+    return x + y

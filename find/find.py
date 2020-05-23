@@ -1,6 +1,8 @@
 from time import sleep
-from typing import TYPE_CHECKING, List
-from celery import Celery
+from typing import List
+# from celery import Celery
+
+# TODO fix all dbs to get_db logic like get status db to make testing easier
 from common.config import (
     get_celery_app,
     get_status_db,
@@ -8,7 +10,7 @@ from common.config import (
     scores_db,
     traversed_db,
     logger,
-    REDIS_URL
+    # REDIS_URL
 )
 
 from common.history import History
@@ -20,13 +22,7 @@ status_db = get_status_db()
 app = get_celery_app()
 
 
-@app.task(name="tasks.add", bound=True)
-def add(self, x: int, y: int) -> int:
-    sleep(5)
-    return x + y
-
-
-def found_in_page(status: 'Status', history: History, all_links: List[str]) -> bool:
+def found_in_page(status: Status, history: History, all_links: List[str]) -> bool:
     if status.end_path in all_links:
         path = history.traversed_path
         path.append(status.end_path)
