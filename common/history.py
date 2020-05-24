@@ -2,9 +2,7 @@ from redis import Redis
 from typing import List, Any
 import json
 from .status import Status
-from .config import (
-    logger,
-)
+from .config import logger
 
 from typing import TYPE_CHECKING
 
@@ -14,12 +12,12 @@ if TYPE_CHECKING:
 
 class History:
     def __init__(
-            self,
-            status: 'Status',
-            redis_client_visited: Redis,
-            redis_client_scores: Redis,
-            redis_client_traversed: Redis,
-            start_path: str,
+        self,
+        status: "Status",
+        redis_client_visited: Redis,
+        redis_client_scores: Redis,
+        redis_client_traversed: Redis,
+        start_path: str,
     ):
 
         # db
@@ -65,21 +63,31 @@ class History:
     def traversed_path(self) -> List[str]:
         if not self.redis_client_traversed.hget(self.status.root_path, self.start_path):
             return list()
-        return json.loads(self.redis_client_traversed.hget(self.status.root_path, self.start_path).decode())
+        return json.loads(
+            self.redis_client_traversed.hget(
+                self.status.root_path, self.start_path
+            ).decode()
+        )
 
     @traversed_path.setter
     def traversed_path(self, value: List[str]):
-        self.redis_client_traversed.hset(self.status.root_path, self.start_path, json.dumps(value))
+        self.redis_client_traversed.hset(
+            self.status.root_path, self.start_path, json.dumps(value)
+        )
 
     def get_new_links_traversed_path(self, link) -> List[str]:
         if not self.redis_client_traversed.hget(self.status.root_path, link):
             return list()
-        return json.loads(self.redis_client_traversed.hget(self.status.root_path, link).decode())
+        return json.loads(
+            self.redis_client_traversed.hget(self.status.root_path, link).decode()
+        )
 
     def new_links_set_traversed_path(self, link: str):
         updated_path = self.traversed_path.copy()
         updated_path.append(link)
-        self.redis_client_traversed.hset(self.status.root_path, link, json.dumps(updated_path))
+        self.redis_client_traversed.hset(
+            self.status.root_path, link, json.dumps(updated_path)
+        )
 
     def bulk_add_to_new_links_traversed_paths(self, links: List[str]):
         for link in links:

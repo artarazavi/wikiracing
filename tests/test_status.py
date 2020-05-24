@@ -1,8 +1,9 @@
 from pytest_redis import factories
 from common.status import Status
 import pytest
-redis_proc = factories.redis_proc(host="redis", port=6379, logsdir='/tmp')
-redis_mock_status = factories.redisdb('redis_nooproc')
+
+redis_proc = factories.redis_proc(host="redis", port=6379, logsdir="/tmp")
+redis_mock_status = factories.redisdb("redis_nooproc")
 
 
 @pytest.fixture()
@@ -15,10 +16,7 @@ def test_status_init(redis_mock_status):
     assert s.active == "active"
     assert s.results == []
     assert s.results_str() == "None"
-    assert isinstance(
-        s.start_time,
-        float
-    )
+    assert isinstance(s.start_time, float)
     assert s.end_time == "None"
     assert s.task_id == "None"
     assert s.start_path == "start_path"
@@ -41,10 +39,7 @@ def test_set_to_redis(status_cls):
 def test_finalize_results(status_cls):
     path = ["path1", "path2", "path3"]
     status_cls.finalize_results(path)
-    assert isinstance(
-        status_cls.end_time,
-        float
-    )
+    assert isinstance(status_cls.end_time, float)
     assert status_cls.is_active() is False
     assert status_cls.results == path
 
@@ -79,24 +74,15 @@ def test_results_pending(status_cls):
 def test_set_and_get_end_time(status_cls):
     status_cls.set_end_time()
     assert status_cls.end_time != "None"
-    assert isinstance(
-        status_cls.end_time,
-        float
-    )
+    assert isinstance(status_cls.end_time, float)
     status_cls.end_time = 2.5
     assert status_cls.end_time != "None"
-    assert isinstance(
-        status_cls.end_time,
-        float
-    )
+    assert isinstance(status_cls.end_time, float)
 
 
 def test_set_and_get_start_time(status_cls):
     status_cls.start_time = 2.5
-    assert isinstance(
-        status_cls.start_time,
-        float
-    )
+    assert isinstance(status_cls.start_time, float)
     assert status_cls.start_time == 2.5
 
 

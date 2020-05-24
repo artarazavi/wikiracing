@@ -27,11 +27,11 @@ class Status:
     """
 
     def __init__(
-            self,
-            redis_client: Redis,
-            root_path: str,
-            start_path: str = None,
-            end_path: str = None
+        self,
+        redis_client: Redis,
+        root_path: str,
+        start_path: str = None,
+        end_path: str = None,
     ):
 
         self.redis_client = redis_client
@@ -39,15 +39,18 @@ class Status:
 
         if not self.exists(self.redis_client, self.root_path):
             with self.redis_client.lock("status-init-lock"):
-                self.redis_client.hset(self.root_path, mapping=dict(
-                    active="active",
-                    results="None",
-                    start_time=datetime.now().timestamp(),
-                    end_time="None",
-                    task_id="None",
-                    start_path=start_path,
-                    end_path=end_path
-                ))
+                self.redis_client.hset(
+                    self.root_path,
+                    mapping=dict(
+                        active="active",
+                        results="None",
+                        start_time=datetime.now().timestamp(),
+                        end_time="None",
+                        task_id="None",
+                        start_path=start_path,
+                        end_path=end_path,
+                    ),
+                )
 
     @staticmethod
     def exists(redis_client: Redis, root_path) -> bool:
@@ -67,7 +70,9 @@ class Status:
         self.set_no_longer_active()
         self.results = traversed_path
         if not TESTING:
-            app.control.revoke(self.task_id, terminate=True, signal='SIGKILL')  # pragma: no cover
+            app.control.revoke(
+                self.task_id, terminate=True, signal="SIGKILL"
+            )  # pragma: no cover
 
     @property
     def active(self) -> str:
@@ -120,7 +125,7 @@ class Status:
     def set_end_time(self):
         with self.redis_client.lock("time-end-lock"):
             total_seconds = (
-                    datetime.now() - datetime.fromtimestamp(self.start_time)
+                datetime.now() - datetime.fromtimestamp(self.start_time)
             ).total_seconds()
             self.end_time = total_seconds
 

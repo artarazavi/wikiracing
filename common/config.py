@@ -29,14 +29,18 @@ REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{CELERY_DB_ID}"
 def get_celery_app(celery_app_name="tasks", redis_url=REDIS_URL):
     celery_app = Celery("tasks", broker=redis_url, backend=redis_url)
     celery_app.conf.update(
-        {"task_serializer": "json", "result_serializer": "json", "accept_content": ["json"]}
+        {
+            "task_serializer": "json",
+            "result_serializer": "json",
+            "accept_content": ["json"],
+        }
     )
-    celery_app.conf.task_default_queue = 'default'
+    celery_app.conf.task_default_queue = "default"
 
     celery_app.conf.task_queues = (
-        Queue('default', routing_key='task.#'),
-        Queue('find_task', routing_key='find.#'),
-        Queue('nlp_task', routing_key='nlp.#'),
+        Queue("default", routing_key="task.#"),
+        Queue("find_task", routing_key="find.#"),
+        Queue("nlp_task", routing_key="nlp.#"),
     )
 
     # setup queues

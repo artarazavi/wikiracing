@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class Wikipedia:
-    def __init__(self, status: 'Status', start_path: str):
+    def __init__(self, status: "Status", start_path: str):
         self.status = status
         self.start_path = start_path
 
@@ -40,10 +40,14 @@ class Wikipedia:
         # Interact with wiki API to get all links on a given page + continued links if any
         while True:
             logger.info("still getting links..")
-            json_response = requests.get("https://en.wikipedia.org/w/api.php", params).json()
-            links = json_response.get("query", {}).get("pages", [{}])[0].get("links", [])
+            json_response = requests.get(
+                "https://en.wikipedia.org/w/api.php", params
+            ).json()
+            links = (
+                json_response.get("query", {}).get("pages", [{}])[0].get("links", [])
+            )
             all_links += [link["title"] for link in links if link.get("title")]
-            if "batchcomplete" not in json_response and len(json_response.keys())>1:
+            if "batchcomplete" not in json_response and len(json_response.keys()) > 1:
                 params = self.build_payload(json_response)
             else:
                 break

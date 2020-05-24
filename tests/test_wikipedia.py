@@ -3,12 +3,14 @@ from common.status import Status
 from common.wikipedia import Wikipedia
 import pytest
 import requests
+
 # gets you MIKE_TYSON_RESPONSE_1 & MIKE_TYSON_RESPONSE_2
-from .test_wikipedia_data import *
+from .wikipedia_data import MIKE_TYSON_RESPONSE_1, MIKE_TYSON_RESPONSE_2
 
 
-redis_proc = factories.redis_proc(host="redis", port=6379, logsdir='/tmp')
-redis_mock_status = factories.redisdb('redis_nooproc')
+redis_proc = factories.redis_proc(host="redis", port=6379, logsdir="/tmp")
+redis_mock_status = factories.redisdb("redis_nooproc")
+
 
 @pytest.fixture()
 def wikipedia_cls(redis_mock_status):
@@ -32,7 +34,7 @@ def test_scrape_page(monkeypatch, wikipedia_cls):
     wikipedia_cls.start_path = "Mike Tyson"
     assert wikipedia_cls.start_path == "Mike Tyson"
 
-    def mock_get(*args,  **kwargs):
+    def mock_get(*args, **kwargs):
         if args[1].get("plcontinue"):
             return ScrapePageMockResponse()
         else:
@@ -56,7 +58,7 @@ def test_get_request(monkeypatch, wikipedia_cls):
     wikipedia_cls.start_path = "Mike Tyson"
     assert wikipedia_cls.start_path == "Mike Tyson"
 
-    def mock_get(*args,  **kwargs):
+    def mock_get(*args, **kwargs):
         return GetRequestMockResponse()
 
     monkeypatch.setattr(requests, "get", mock_get)
@@ -78,11 +80,11 @@ def test_build_payload_no_response(wikipedia_cls):
 
 def test_build_payload_with_response(wikipedia_cls):
     assert wikipedia_cls.build_payload(MIKE_TYSON_RESPONSE_1) == {
-               "action": "query",
-               "titles": "start_path",
-               "format": "json",
-               "formatversion": "2",
-               "prop": "links",
-               "pllimit": "max",
-               "plcontinue": "39027|0|Ahmed_Salim",
-           }
+        "action": "query",
+        "titles": "start_path",
+        "format": "json",
+        "formatversion": "2",
+        "prop": "links",
+        "pllimit": "max",
+        "plcontinue": "39027|0|Ahmed_Salim",
+    }

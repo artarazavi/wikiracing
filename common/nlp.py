@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class NLP:
-    def __init__(self, status: 'Status', history: 'History'):
+    def __init__(self, status: "Status", history: "History"):
         self.status = status
         self.history = history
 
@@ -27,7 +27,8 @@ class NLP:
                     queue="nlp",
                 )
                 # only score non visited links
-                for query in all_links if not self.history.is_visited(query)
+                for query in all_links
+                if not self.history.is_visited(query)
             ]
         )
         nlp_scored_results = scoring_jobs.apply_async(queue="nlp")
@@ -38,4 +39,3 @@ class NLP:
         # waits for subtasks and we can do this because we have multiple queues we dont need to worry.
 
         return nlp_scored_results.get(disable_sync_subtasks=False)
-

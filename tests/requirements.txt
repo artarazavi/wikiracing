@@ -3,3 +3,4 @@ celery
 redis
 requests
 flask
+pytest_flask

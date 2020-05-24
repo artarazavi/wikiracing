@@ -1,5 +1,6 @@
 from time import sleep
 from typing import List
+
 # from celery import Celery
 
 # TODO fix all dbs to get_db logic like get status db to make testing easier
@@ -34,8 +35,7 @@ def found_in_page(status: Status, history: History, all_links: List[str]) -> boo
 
 @app.task(name="tasks.find")
 def find(
-    root_path: str,
-    start_path: str,
+    root_path: str, start_path: str,
 ):
     status = Status(status_db, root_path)
 
@@ -44,13 +44,7 @@ def find(
         return
 
     # Populates history
-    history = History(
-        status,
-        visited_db,
-        scores_db,
-        traversed_db,
-        start_path,
-    )
+    history = History(status, visited_db, scores_db, traversed_db, start_path,)
 
     if start_path == status.start_path:
         history.traversed_path = [status.start_path]
@@ -83,14 +77,6 @@ def find(
 
     app.send_task(
         "tasks.find",
-        kwargs=dict(
-            root_path=root_path,
-            start_path=history.next_highest_score(),
-        ),
-        queue='find'
+        kwargs=dict(root_path=root_path, start_path=history.next_highest_score(),),
+        queue="find",
     )
-
-
-
-
-
