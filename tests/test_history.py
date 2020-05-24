@@ -42,6 +42,7 @@ def test_history_init(
     assert history.redis_client_scores == redis_mock_scores
     assert history.redis_client_traversed == redis_mock_traversed
     assert history.start_path == "start_path"
+    assert history.scores == []
 
 
 def test_is_visited(history_cls):
@@ -61,6 +62,8 @@ def test_history_add_to_score(history_cls):
     assert history_cls.scores == list()
     history_cls.add_to_scores(0.7, "link1")
     assert history_cls.scores == [(b"link1", 0.7)]
+    history_cls.add_to_scores(0.9, "link2")
+    assert history_cls.scores == [(b"link1", 0.7), (b"link2", 0.9)]
 
 
 def test_history_bulk_add_to_score(history_cls):
@@ -117,3 +120,4 @@ def test_bulk_add_to_new_links_traversed_paths(history_cls):
         "path3",
         "path6",
     ]
+    assert history_cls.get_new_links_traversed_path("path7") == []

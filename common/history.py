@@ -44,7 +44,7 @@ class History:
         scores = self.redis_client_scores.zscan(self.status.root_path, 0)
         if scores:
             return scores[1]
-        return []
+        return list()
 
     def add_to_scores(self, score: float, link_name: str):
         self.redis_client_scores.zadd(self.status.root_path, {link_name: score})

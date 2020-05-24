@@ -19,11 +19,12 @@ from common.nlp import NLP
 from common.wikipedia import Wikipedia
 from common.status import Status
 
+
+app = get_celery_app()
 status_db = get_status_db()
 visited_db = get_visited_db()
 scores_db = get_scores_db()
 traversed_db = get_traversed_db()
-app = get_celery_app()
 
 
 def found_in_page(status: Status, history: History, all_links: List[str]) -> bool:
@@ -75,7 +76,7 @@ def find(
         history.add_to_visited(start_path)
 
     # Dont kick off next find find if task is done
-    if not status.is_active():
+    if not status.is_active() or len(history.scores) < 1:
         return
 
     app.send_task(

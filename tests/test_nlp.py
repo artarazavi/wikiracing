@@ -39,7 +39,10 @@ def test_nlp_score_links(nlp_cls, celery_app, celery_worker, get_celery_app_over
     celery_app.task(name="tasks.nlp")(nlp.nlp_score)
     links = ["potato", "carrot", "tomato"]
     scored_links = nlp_cls.score_links(links)
-    # assert scored_links == [["potato", 0.7085011885392024],
-    #                         ["carrot", 0.7561327100917855],
-    #                         ["tomato", 0.7396226929531468]]
+    # scores from large dictionary
+    # [["potato", 0.7085011885392024],
+    # ["carrot", 0.7561327100917855],
+    # ["tomato", 0.7396226929531468]]
     assert links == [l[0] for l in scored_links]
+    # got high-ish similarity between vegetables
+    assert False not in [(l[1] > 0.4) for l in scored_links]

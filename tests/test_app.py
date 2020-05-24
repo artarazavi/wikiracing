@@ -50,13 +50,14 @@ def test_find(client, flask_app, redis_mock_status):
             res = client.get(url)
     assert json.loads(res.data.decode()) == ["mock1", "mock2"]
 
-
-def test_add(client, flask_app):
-    with flask_app.app_context():
-        assert "status of" in client.get(url_for("add", param1=2, param2=5)).data.decode()
-
-
 # TODO get rid of this
+
+# def test_add(client, flask_app):
+#     with flask_app.app_context():
+#         assert "status of" in client.get(url_for("add", param1=2, param2=5)).data.decode()
+
+
+
 # left here for use later
 
 # @pytest.fixture()

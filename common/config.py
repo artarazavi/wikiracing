@@ -10,7 +10,7 @@ logger = logging.getLogger()
 logger.setLevel(LOGGING_LEVEL)
 
 # gather environment variables
-REDIS_HOST = environ.get("REDIS_HOST")
+REDIS_HOST = environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = environ.get("REDIS_PORT", 6379)
 CELERY_DB_ID = environ.get("CELERY_DB", 0)
 
@@ -19,8 +19,8 @@ VISITED_DB = environ.get("VISITED_DB", 2)
 SCORES_DB = environ.get("SCORES_DB", 3)
 TRAVERSED_DB = environ.get("TRAVERSED_DB", 4)
 
-FLUSH_ALL = environ.get("FLUSH_ALL")
-C_FORCE_ROOT = environ.get("C_FORCE_ROOT")
+FLUSH_ALL = environ.get("FLUSH_ALL", False)
+C_FORCE_ROOT = environ.get("C_FORCE_ROOT", True)
 
 REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{CELERY_DB_ID}"
 

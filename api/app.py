@@ -1,11 +1,6 @@
-import celery.states as states
-from flask import Flask, url_for
-
-
+from flask import Flask
 from common import config
 from common.status import Status
-from time import sleep
-
 
 config_celery_app = config.get_celery_app()
 config_status_db = config.get_status_db()
@@ -44,36 +39,6 @@ def create_flask_app(celery_app, status_db, testing_config=None):
         status.task_id = task.id
 
         return "Pending"
-
-    #########################################################
-    # testing sample functions only used for sanity testing
-    #########################################################
-
-    # test function
-    @app_router.route("/add/<int:param1>/<int:param2>")
-    def add(param1: int, param2: int) -> str:
-        task = app.send_task("tasks.add", args=[param1, param2], kwargs={})
-        response = f"<a href='{url_for('check_task', task_id=task.id, external=True)}'>check status of {task.id} </a>"
-        return response
-
-    # test function
-    @app_router.route("/check/<string:task_id>")
-    def check_task(task_id: str) -> str:
-        res = app.AsyncResult(task_id)
-        if res.state == states.PENDING:
-            return res.state
-        else:
-            return str(res.result)
-
-    # test function
-    @app.task(bind=True, name="tasks.mul")
-    def mul(self, x: int, y: int):
-        return x * y
-
-    @app.task(name="tasks.add")
-    def add(x: int, y: int) -> int:
-        sleep(5)
-        return x + y
 
     return app_router
 

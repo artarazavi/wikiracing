@@ -99,7 +99,7 @@ class Status:
 
     def results_str(self) -> str:
         if self.get_from_redis("results") != "None":
-            return self.redis_client.hget(self.root_path, "results")
+            return self.redis_client.hget(self.root_path, "results").decode()
         return "None"
 
     def results_pending(self) -> bool:
