@@ -7,9 +7,9 @@ from typing import List
 from common.config import (
     get_celery_app,
     get_status_db,
-    visited_db,
-    scores_db,
-    traversed_db,
+    get_visited_db,
+    get_scores_db,
+    get_traversed_db,
     logger,
     # REDIS_URL
 )
@@ -20,6 +20,9 @@ from common.wikipedia import Wikipedia
 from common.status import Status
 
 status_db = get_status_db()
+visited_db = get_visited_db()
+scores_db = get_scores_db()
+traversed_db = get_traversed_db()
 app = get_celery_app()
 
 

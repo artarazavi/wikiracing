@@ -16,64 +16,6 @@ services:
       - .env
     tty: true
 
-  # API Web Service
-  api:
-    volumes:
-      - ./api/:/src/app/api
-      - ./common/:/src/app/api/common
-    entrypoint: flask
-    command: run --host 0.0.0.0 --port 5001
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-    restart: always
-    ports:
-      - "127.0.0.1:5001:5001"
-    depends_on:
-      - redis
-    env_file:
-      - .env
-    environment:
-      - FLUSH_ALL=true
-
-  # The find worker service
-  find:
-    volumes:
-      - ./find/:/src/app/find
-      - ./common/:/src/app/find/common
-    entrypoint: celery
-    command: -A find worker -Q find --loglevel=info --concurrency=10
-    build:
-      context: find
-      dockerfile: Dockerfile
-    depends_on:
-      - redis
-    env_file:
-      - .env
-
-  # NLP Processor
-  nlp:
-    volumes:
-      - ./nlp/:/src/app/nlp
-      - ./common/:/src/app/nlp/common
-    entrypoint: celery
-    command: -A nlp worker -Q nlp --loglevel=info --concurrency=10
-    build:
-      context: nlp
-      dockerfile: Dockerfile
-    depends_on:
-      - redis
-    env_file:
-      - .env
-
-  # Redis Admin UI
-  redis-commander:
-    image: rediscommander/redis-commander
-    restart: always
-    environment:
-      - REDIS_HOSTS=local:redis:6379:0,status:redis:6379:1,visited:redis:6379:2,scores:redis:6379:3, traversed:redis:6379:4
-    ports:
-      - "127.0.0.1:8081:8081"
 
   # Redis DB
   redis:
@@ -84,8 +26,3 @@ services:
     ports:
       - "127.0.0.1:6379:6379"
 
-  flower:
-    image: mher/flower
-    command: ["flower", "--broker=redis://redis:6379/0", "--port=8888"]
-    ports:
-      - 8888:8888

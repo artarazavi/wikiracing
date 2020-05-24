@@ -5,7 +5,7 @@ import json
 from .config import get_celery_app
 import sys
 
-app = get_celery_app()
+
 
 
 TESTING = False
@@ -69,6 +69,7 @@ class Status:
         self.set_end_time()
         self.set_no_longer_active()
         self.results = traversed_path
+        app = get_celery_app()
         if not TESTING:
             app.control.revoke(
                 self.task_id, terminate=True, signal="SIGKILL"

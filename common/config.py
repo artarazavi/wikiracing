@@ -27,7 +27,7 @@ REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{CELERY_DB_ID}"
 
 # celery setup
 def get_celery_app(celery_app_name="tasks", redis_url=REDIS_URL):
-    celery_app = Celery("tasks", broker=redis_url, backend=redis_url)
+    celery_app = Celery(celery_app_name, broker=redis_url, backend=redis_url)
     celery_app.conf.update(
         {
             "task_serializer": "json",
@@ -58,11 +58,18 @@ def get_status_db():
     return StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=STATUS_DB)
 
 
-visited_db = StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=VISITED_DB)
-scores_db = StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=SCORES_DB)
-traversed_db = StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=TRAVERSED_DB)
+def get_visited_db():
+    return StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=VISITED_DB)
+
+
+def get_scores_db():
+    return StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=SCORES_DB)
+
+
+def get_traversed_db():
+    return StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=TRAVERSED_DB)
 
 
 # if flush set
 if FLUSH_ALL:
-    scores_db.flushall()
+    get_scores_db().flushall()

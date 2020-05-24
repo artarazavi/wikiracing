@@ -12,6 +12,8 @@ app = get_celery_app()
 # Spacy setup
 logger.info("Loading NLP Info...")
 spacy_file = "assets/en_core_web_lg-2.2.5/en_core_web_lg/en_core_web_lg-2.2.5"
+
+
 if "pytest" in sys.modules:
     spacy_file = (
         "../nlp/assets/en_core_web_lg-2.2.5/en_core_web_lg/en_core_web_lg-2.2.5"

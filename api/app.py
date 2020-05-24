@@ -7,20 +7,21 @@ from common.status import Status
 from time import sleep
 
 
-app = config.get_celery_app()
-status_db = config.get_status_db()
+config_celery_app = config.get_celery_app()
+config_status_db = config.get_status_db()
 
 
 def build_root_path(start_path: str, end_path: str):
     return f"{start_path}-{end_path}"
 
 
-def create_app(celery_app, status_db):
+def create_flask_app(celery_app, status_db, testing_config=None):
 
     app_router = Flask(__name__)
     app = celery_app
-    # app = config.get_celery_app()
-    # status_db = config.get_status_db()
+
+    if testing_config:
+        app_router.config.update(testing_config)
 
     @app_router.route("/find/<string:start_path>/<string:end_path>")
     def find(start_path: str, end_path: str) -> str:
@@ -77,4 +78,4 @@ def create_app(celery_app, status_db):
     return app_router
 
 
-flask_app = create_app(app, status_db)
+flask_app = create_flask_app(config_celery_app, config_status_db)
