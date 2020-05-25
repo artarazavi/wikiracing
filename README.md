@@ -6,9 +6,9 @@ Work smarter not harder:
 - Flask: API endpoint to kick off game
 - Spacy: NLP engine computes word similarity scores by comparing word vectors
 - Celery: Celery creates tasks which are sent to workers who listen to distinct queues for work. There is also availability for parallel processing through increasing the number of workers. 
-- Redis: A fast caching database also used by celery.  
-    
-[Architecture Diagram](https://github.com/artarazavi/wikiracing/blob/master/images/architecture_diagram.png)   
+- Redis: A fast caching database also used by celery.   
+   
+![Architecture Diagram](/images/architecture_diagram.png)  
    
 All previous solutions found online rely on breadth first search to look through all the links on Wikipedia with no prior context. Instead of searching blindly with no context, use a natural language processing engine to seek out pages with high similarity scores with respect to the goal end page and visit those pages first. Distribute this work across multiple Celery workers to allow for parallel processing.  
 
