@@ -10,6 +10,8 @@ services:
     build:
       context: .
       dockerfile: tests/Dockerfile
+      args:
+        SPACY_LANG: ${SPACY_LANG}
     depends_on:
       - redis
     env_file:

@@ -38,6 +38,7 @@ def test_find(client, flask_app, redis_mock_status):
     def mock_find(*args, **kwargs):
         redis_mock_status.hset("Mike Tyson-New York City", "active", "done")
         redis_mock_status.hset("Mike Tyson-New York City", "results", json.dumps(["mock1", "mock2"]))
+        redis_mock_status.hset("Mike Tyson-New York City", "end_time", 20.5)
         return None
 
     with flask_app.app_context():
@@ -51,4 +52,4 @@ def test_find(client, flask_app, redis_mock_status):
         while res.data.decode() == "Pending":
             sleep(0.5)
             res = client.get(url)
-    assert json.loads(res.data.decode()) == ["mock1", "mock2"]
+    assert res.data.decode() == "solution is: [\"mock1\", \"mock2\"] time spent: 20.5 seconds"

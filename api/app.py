@@ -50,7 +50,7 @@ def create_flask_app(celery_app, status_db, testing_config=None):
 
         if Status.exists(status_db, root_path):
             status = Status(status_db, root_path)
-            return "Pending" if status.results_pending() else status.results_str()
+            return "Pending" if status.results_pending() else f"solution is: {status.results_str()} time spent: {str(status.end_time)} seconds"
 
         # Initialize status
         status = Status(status_db, root_path, start_path, end_path)
