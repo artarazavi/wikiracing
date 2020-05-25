@@ -28,7 +28,7 @@ Navigate to Redis commander to monitor tasks and the status database:
 http://localhost:8081/
 ```   
 When the search completes you can see the results and total time spent computing in the redis status db.   
-Or you can issue the same get request again and instead of “Pending” it will respond with the traversed path to that page.
+Or you can issue the same get request again and instead of “Pending” it will respond with the traversed path to that page and time spent computing in seconds.
 
 ## How to test:
 ```
