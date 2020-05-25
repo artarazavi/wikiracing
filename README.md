@@ -13,22 +13,34 @@ All previous solutions found online rely on breadth first search to look through
 ## How to Run:
 This depends on having Docker and Docker Compose installed and setup.   
 Clone this repository and navigate to the folder then run:   
-`$ docker-compose up`   
+```
+$ docker-compose up
+```   
 The first build may take a while because it grabs the Spacy english mode for the first time which is quite large. This file is then cached for later runs.   
 Using a browser or Postman or any client of your choice send a get request to:   
-`http://localhost:5001/find/[start page title]/[end page title]`   
+```
+http://localhost:5001/find/[start page title]/[end page title]
+```   
 Navigate to Redis commander to monitor tasks and the status database:   
-`http://localhost:8081/`   
+```
+http://localhost:8081/
+```   
 When the search completes you can see the results and total time spent computing in the redis status db.   
 Or you can issue the same get request again and instead of “Pending” it will respond with the traversed path to that page.
 
 ## How to test:
-`$ docker-compose -f docker-compose-tests.yml up`
+```
+$ docker-compose -f docker-compose-tests.yml up
+```
 
 ## Debugging:
 - Redis commander: allows for monitoring of database and task queues   
 	Navigate to:   
-	`http://localhost:8081/` 
+	```
+	http://localhost:8081/
+    ``` 
 - Flower: web based tool for monitoring and administering Celery clusters   
 	Start tasks you wish to debug with flower like so:   
-	`$ docker-compose restart [task name or space separated task names] flower`
+	```
+	$ docker-compose restart [task name or space separated task names] flower
+    ```
