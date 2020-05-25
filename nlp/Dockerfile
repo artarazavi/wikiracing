@@ -9,11 +9,12 @@ RUN pip3 install --upgrade pip setuptools
 # in the cache until you perform a dockere prune.
 # Upon next dc up we wont have to grab the dictionary again
 #############################################################
-ENV LANG             en_core_web_lg
+ARG SPACY_LANG
+#ENV SPACY_LANG             en_core_web_lg
 ENV SPACY_VERSION    2.2
 
 RUN pip3 install spacy==${SPACY_VERSION}
-RUN python3 -m spacy download ${LANG}
+RUN python3 -m spacy download ${SPACY_LANG}
 
 COPY . /src/app/nlp
 WORKDIR /src/app/nlp

@@ -9,6 +9,9 @@ LOGGING_LEVEL = environ.get("LOGGING_LEVEL", "INFO")
 logger = logging.getLogger()
 logger.setLevel(LOGGING_LEVEL)
 
+# Spacy dictionary
+SPACY_LANG = environ.get("SPACY_LANG", "en_core_web_md")
+
 # gather environment variables
 REDIS_HOST = environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = int(environ.get("REDIS_PORT", 6379))

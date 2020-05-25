@@ -45,6 +45,8 @@ services:
     build:
       context: nlp
       dockerfile: Dockerfile
+      args:
+        SPACY_LANG: ${SPACY_LANG}
     depends_on:
       - redis
     env_file:

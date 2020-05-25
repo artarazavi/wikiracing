@@ -24,6 +24,10 @@ def test_config_init():
             "redis://redis:6379/0",
             "redis://localhost:6379/0"
         ]
+    assert config.SPACY_LANG in [
+        "en_core_web_md",
+        "en_core_web_lg"
+    ]
 
 
 def test_get_celery_app():
