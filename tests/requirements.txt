@@ -4,3 +4,4 @@ redis
 requests
 flask
 pytest_flask
+pytest

@@ -1,9 +1,5 @@
-from time import sleep
 from typing import List
 
-# from celery import Celery
-
-# TODO fix all dbs to get_db logic like get status db to make testing easier
 from common.config import (
     get_celery_app,
     get_status_db,
@@ -11,14 +7,11 @@ from common.config import (
     get_scores_db,
     get_traversed_db,
     logger,
-    # REDIS_URL
 )
-
 from common.history import History
 from common.nlp import NLP
-from common.wikipedia import Wikipedia
 from common.status import Status
-
+from common.wikipedia import Wikipedia
 
 app = get_celery_app()
 status_db = get_status_db()
@@ -28,6 +21,17 @@ traversed_db = get_traversed_db()
 
 
 def found_in_page(status: Status, history: History, all_links: List[str]) -> bool:
+    """Whether wiki race end path was found in newly discovered links.
+
+    If the  wiki race end path was discovered on current page:
+    Results traversed path: end path appended to the current query page's traversed path.
+    Finalize results: by sending the finalized results traversed path to status.
+
+    Args:
+        status: Status of current search.
+        history: History of current search.
+        all_links: List of new links discovered on current query page.
+    """
     if status.end_path in all_links:
         path = history.traversed_path
         path.append(status.end_path)
@@ -41,6 +45,22 @@ def found_in_page(status: Status, history: History, all_links: List[str]) -> boo
 def find(
     root_path: str, start_path: str,
 ):
+    """Celery task that plays wiki racer game.
+
+    This task only kicks off if the search is still active.
+    Sets history: Based on search status and current page bering queried.
+    Keeps track of visited: If a node is already visited do not visit again (prevent cycles)
+    Upon discovery of a new page: Scrape page for new links.
+    When new links obtained: Score links based on similarity to wiki race end path.
+    Track game completion: When wiki game end path is found in newly discovered links end the game.
+    If wiki page end game not found, send another task to find with:
+        start_path/query: [highest scoring page discovered so far].
+
+
+    Args:
+        root_path: Search key composed of wiki racer start page and end page.
+        start_path: Page being queried.
+    """
     status = Status(status_db, root_path)
 
     # Dont start find if task is done
@@ -72,13 +92,11 @@ def find(
         # add them onto scores set
         history.bulk_add_to_scores(nlp_scores)
 
-    else:
-        history.add_to_visited(start_path)
-
-    # Dont kick off next find find if task is done
+    # Dont kick off next find find if task is done or no more pages left to search
     if not status.is_active() or len(history.scores) < 1:
         return
 
+    # kick off another find task with highest scoring page found so far
     app.send_task(
         "tasks.find",
         kwargs=dict(root_path=root_path, start_path=history.next_highest_score(),),

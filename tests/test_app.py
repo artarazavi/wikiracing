@@ -1,12 +1,15 @@
-from api.app import create_flask_app
-import pytest
-from pytest_redis import factories
-import pytest_flask
-from flask import url_for
 import json
 from time import sleep
 from unittest.mock import patch
+
+import pytest
+import pytest_flask
+from flask import url_for
+from pytest_redis import factories
+from common import config
+
 from api import app
+from api.app import create_flask_app
 
 redis_proc = factories.redis_proc(host="redis", port=6379, logsdir="/tmp")
 redis_mock_status = factories.redisdb("redis_nooproc", 1)
@@ -49,53 +52,3 @@ def test_find(client, flask_app, redis_mock_status):
             sleep(0.5)
             res = client.get(url)
     assert json.loads(res.data.decode()) == ["mock1", "mock2"]
-
-# TODO get rid of this
-
-# def test_add(client, flask_app):
-#     with flask_app.app_context():
-#         assert "status of" in client.get(url_for("add", param1=2, param2=5)).data.decode()
-
-
-
-# left here for use later
-
-# @pytest.fixture()
-# def mock_app(monkeypatch, celery_app, redis_mock_status):
-#     from api import app
-#     monkeypatch.setattr(app, "config_celery_app", celery_app)
-#     monkeypatch.setattr(app, "config_status_db", redis_mock_status)
-#     return app
-
-
-
-# # flaks app
-# @pytest.fixture()
-# def app(celery_app, redis_mock_status):
-#     app = create_flask_app(celery_app, redis_mock_status)
-#     return app
-
-# @pytest.fixture()
-# def celery_mock_find(
-#         monkeypatch,
-#         celery_app,
-#         redis_mock_status,
-#         redis_mock_visited,
-#         redis_mock_scores,
-#         redis_mock_traversed
-# ):
-#     from find import find
-#     monkeypatch.setattr(find, "app", celery_app)
-#     monkeypatch.setattr(find, "status_db", redis_mock_status)
-#     monkeypatch.setattr(find, "visited_db", redis_mock_visited)
-#     monkeypatch.setattr(find, "scores_db", redis_mock_scores)
-#     monkeypatch.setattr(find, "traversed_db", redis_mock_traversed)
-#     return find
-
-
-# @pytest.fixture()
-# def celery_mock_nlp(monkeypatch, celery_app):
-#     from common import nlp
-#     monkeypatch.setattr(nlp, "app", celery_app)
-#     return nlp
-

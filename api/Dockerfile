@@ -16,4 +16,4 @@ RUN pip install -r requirements.txt
 EXPOSE 5001
 
 # run the app server
-CMD ["flask", "run", "--host", "0.0.0.0", "--port", "5001"]
+CMD ["python", "app.py", "--host", "0.0.0.0", "--port", "5001"]

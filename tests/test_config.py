@@ -1,8 +1,10 @@
-from common import config
 import logging
+
+import redis
 from celery import Celery
 from kombu import Queue
-import redis
+
+from common import config
 
 
 def test_config_init():

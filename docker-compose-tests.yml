@@ -5,7 +5,7 @@ services:
     volumes:
       - ./:/src/app
       - ./common/:/src/app/tests/common
-    entrypoint: pytest
+    entrypoint: pytest --redis-host=redis
     command: .
     build:
       context: .

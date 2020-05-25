@@ -1,12 +1,11 @@
-from pytest_redis import factories
-from common.status import Status
-from common.wikipedia import Wikipedia
 import pytest
 import requests
+from pytest_redis import factories
 
+from common.status import Status
+from common.wikipedia import Wikipedia
 # gets you MIKE_TYSON_RESPONSE_1 & MIKE_TYSON_RESPONSE_2
 from .wikipedia_data import MIKE_TYSON_RESPONSE_1, MIKE_TYSON_RESPONSE_2
-
 
 redis_proc = factories.redis_proc(host="redis", port=6379, logsdir="/tmp")
 redis_mock_status = factories.redisdb("redis_nooproc")

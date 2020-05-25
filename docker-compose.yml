@@ -5,8 +5,8 @@ services:
     volumes:
       - ./api/:/src/app/api
       - ./common/:/src/app/api/common
-    entrypoint: flask
-    command: run --host 0.0.0.0 --port 5001
+    entrypoint: python
+    command: app.py --host 0.0.0.0 --port 5001
     build:
       context: ./api
       dockerfile: Dockerfile

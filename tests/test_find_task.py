@@ -1,15 +1,16 @@
-import pytest
-from pytest_redis import factories
-from find import find
-# from nlp import nlp
-from common.status import Status
-from common.history import History
-import requests
-from time import sleep
 import json
+from time import sleep
 from unittest.mock import patch
-from common.nlp import NLP
+
+import pytest
+import requests
 import celery
+from pytest_redis import factories
+
+from common.history import History
+from common.nlp import NLP
+from common.status import Status
+from find import find
 
 MIKE_TYSON_RESPONSE_1 = {
     "continue": {"plcontinue": "39027|0|Ahmed_Salim", "continue": "||"},
@@ -109,7 +110,7 @@ def mock_get(*args, **kwargs):
         return ScrapePageMockResponseContinue()
 
 
-def test_find(celery_app, monkeypatch, celery_worker, celery_mock_find, status_cls):
+def test_find_on_first_page(celery_app, monkeypatch, celery_worker, celery_mock_find, status_cls):
     monkeypatch.setattr(requests, "get", mock_get)
     find.find("Mike Tyson-Albany, New York", "Mike Tyson")
     sleep(5)
@@ -121,7 +122,7 @@ class MockNLP(NLP):
         return [["Adultery", 0.5], ["Adult Swim", 0.9], ["Adult Movie", 0.7]]
 
 
-def test_find_recurse(celery_app, celery_worker, monkeypatch,  celery_mock_find, history_cls):
+def test_find_not_on_first_page(celery_app, celery_worker, monkeypatch,  celery_mock_find, history_cls):
 
     def mock_apply_async(*args, **kwargs):
         return

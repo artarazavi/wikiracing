@@ -1,7 +1,8 @@
+import pytest
 from pytest_redis import factories
+
 from common.history import History
 from common.status import Status
-import pytest
 
 redis_proc = factories.redis_proc(host="redis", port=6379, logsdir="/tmp")
 redis_mock_status = factories.redisdb("redis_nooproc", 1)
