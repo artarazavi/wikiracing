@@ -19,7 +19,6 @@ def test_config_init():
     assert config.SCORES_DB == 3
     assert config.TRAVERSED_DB == 4
     assert config.FLUSH_ALL in [True, False]
-    assert config.C_FORCE_ROOT
     assert config.REDIS_URL in [
             "redis://redis:6379/0",
             "redis://localhost:6379/0"

@@ -23,10 +23,10 @@ if "pytest" in sys.modules:
     )
 
 # use this if you downloaded spacy and stored it locally
-# nlp = spacy.load(spacy_file)
+nlp = spacy.load(spacy_file)
 
 # reads spacy model downloaded upon build
-nlp = spacy.load(SPACY_LANG)
+#nlp = spacy.load(SPACY_LANG)
 
 stop_list = set("for a of the and to in go list".split())
 

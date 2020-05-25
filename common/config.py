@@ -23,7 +23,6 @@ SCORES_DB = int(environ.get("SCORES_DB", 3))
 TRAVERSED_DB = int(environ.get("TRAVERSED_DB", 4))
 
 FLUSH_ALL = True if environ.get("FLUSH_ALL", "False").lower() == "true" else False
-C_FORCE_ROOT = True if environ.get("C_FORCE_ROOT", "True").lower() == "true" else False
 
 REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{CELERY_DB_ID}"
 

@@ -67,10 +67,26 @@ def test_history_add_to_score(history_cls):
     assert history_cls.scores == [(b"link1", 0.7), (b"link2", 0.9)]
 
 
+def test_history_add_to_score_already_visited(history_cls):
+    assert history_cls.scores == list()
+    history_cls.add_to_scores(0.7, "link1")
+    assert history_cls.scores == [(b"link1", 0.7)]
+    history_cls.add_to_visited("link2")
+    history_cls.add_to_scores(0.9, "link2")
+    assert history_cls.scores == [(b"link1", 0.7)]
+
+
 def test_history_bulk_add_to_score(history_cls):
     assert history_cls.scores == list()
     history_cls.bulk_add_to_scores([["path1", 0.7], ["path2", 0.9], ["path3", 0.1]])
     assert history_cls.scores == [(b"path3", 0.1), (b"path1", 0.7), (b"path2", 0.9)]
+
+
+def test_history_bulk_add_to_score_already_visited(history_cls):
+    assert history_cls.scores == list()
+    history_cls.add_to_visited("path2")
+    history_cls.bulk_add_to_scores([["path1", 0.7], ["path2", 0.9], ["path3", 0.1]])
+    assert history_cls.scores == [(b"path3", 0.1), (b"path1", 0.7)]
 
 
 def test_history_next_highest_score(history_cls):
@@ -90,6 +106,19 @@ def test_new_links_set_get_traversed_path(history_cls):
     assert history_cls.traversed_path == []
     history_cls.traversed_path = ["path4", "path5", "path6"]
     history_cls.new_links_set_traversed_path("path7")
+    assert history_cls.get_new_links_traversed_path("path7") == [
+        "path4",
+        "path5",
+        "path6",
+        "path7",
+    ]
+
+
+def test_new_links_set_get_traversed_path_transclusions(history_cls):
+    assert history_cls.traversed_path == []
+    history_cls.traversed_path = ["path4", "path5", "path6", "path7"]
+    history_cls.new_links_set_traversed_path("path7")
+    # no double adding
     assert history_cls.get_new_links_traversed_path("path7") == [
         "path4",
         "path5",

@@ -46,3 +46,7 @@ $ docker-compose -f docker-compose-tests.yml up
 	```
 	$ docker-compose restart [task name or space separated task names] flower
     ```
+    Navigate to:   
+	```
+	http://localhost:8888/
+    ``` 

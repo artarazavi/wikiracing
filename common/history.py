@@ -136,7 +136,8 @@ class History:
             link_name: Page title.
 
         """
-        self.redis_client_scores.zadd(self.status.root_path, {link_name: score})
+        if not self.is_visited(link_name):
+            self.redis_client_scores.zadd(self.status.root_path, {link_name: score})
 
     def bulk_add_to_scores(self, scores: List[List[Any]]):
         """Add a list of scored pages into sorted scores db.
@@ -213,7 +214,9 @@ class History:
 
         """
         updated_path = self.traversed_path.copy()
-        updated_path.append(link)
+        # wikipedia has these weird things called transclusions where a page links to itself
+        if updated_path[-1] != link:
+            updated_path.append(link)
         self.redis_client_traversed.hset(
             self.status.root_path, link, json.dumps(updated_path)
         )
