@@ -19,7 +19,7 @@ Clone this repository and navigate to the folder then run:
 $ docker-compose up
 ```   
 The first build may take a while because it grabs the Spacy english mode for the first time which is quite large. This file is then cached for later runs.   
-For lower build time see the Spacy Config Section on installing a local version of the Spacy model.   
+For lower build time see the Spacy Config section on installing a local version of the Spacy model.   
 Using a browser or Postman or any client of your choice send a get request to:   
 ```
 http://localhost:5001/find/[start page title]/[end page title]
