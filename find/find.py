@@ -26,40 +26,52 @@ def found_in_page(status: Status, history: History, all_links: List[str], rev_ro
 
     If the  wiki race end path was discovered on current page:
     Results traversed path: end path appended to the current query page's traversed path.
-    Finalize results: by sending the finalized results traversed path to status.
+    Finalize results: by sending the finalized results traversed path to status of the search & reverse search
 
     Args:
         status: Status of current search.
         history: History of current search.
         all_links: List of new links discovered on current query page.
-        rev_root_path: The path reversed of this one.
+        rev_root_path: The root_path of the same search going in reverse.
     """
-    # python intersect
-    # redis supports this throgh SINTER key1 key2
     status_rev = Status(status_db, rev_root_path)
-    intersection = list(set(history.redis_client_traversed.hkeys(status.root_path)) & set(history.redis_client_traversed.hkeys(rev_root_path)))
     if status.end_path in all_links:
         path = history.traversed_path.copy()
         path.append(status.end_path)
         status.finalize_results(path)
         path_rev = path.copy()
         path_rev.reverse()
+        # also set results in the reverse search db
         status_rev.finalize_results(path_rev)
         logger.info(f"End link found!! path traversed and time to complete: {path} or {path_rev}")
         return True
-    elif intersection:
-        logger.info("INTERSECTION FOUND HOLY SHIT COOL")
-        intersection_page = intersection[0].decode()
-        traversed_path_root_path = json.loads(history.redis_client_traversed.hget(status.root_path, intersection_page).decode())
-        traversed_path_rev_root_path = json.loads(history.redis_client_traversed.hget(rev_root_path, intersection_page).decode())
-        traversed_path_rev_root_path.pop()
-        traversed_path_rev_root_path.reverse()
-        path_to_goal = traversed_path_root_path + traversed_path_rev_root_path
+    return False
+
+
+def found_in_intersect(status: Status, history: History, rev_root_path: str):
+    """Whether wiki race end path was found in newly discovered links.
+
+        If the  wiki race end path was discovered through a page both searches found (an intersection)
+        Results traversed path: path of current search + (path of reverse search).reversed()
+        This is because one computes forward based on links and the other backwards based on links_to
+        Finalize results: by sending the finalized results traversed path to status of the search & reverse search
+
+        Args:
+            status: Status of current search.
+            history: History of current search.
+            rev_root_path: The root_path of the same search going in reverse.
+        """
+    status_rev = Status(status_db, rev_root_path)
+    intersection = history.traversed_intersection(status.root_path, rev_root_path)
+    if intersection:
+        path_to_goal = history.intersection_path(status.root_path, rev_root_path)
         status.finalize_results(path_to_goal)
         path_to_goal_rev = path_to_goal.copy()
         path_to_goal_rev.reverse()
+        # also set results in the reverse search db
         status_rev.finalize_results(path_to_goal_rev)
-        logger.info(f"Intersection End link found from page {intersection_page}!! path traversed and time to complete: {path_to_goal} or {path_to_goal_rev}")
+        logger.info(
+            f"Intersection End link found!! path traversed and time to complete: {path_to_goal} or {path_to_goal_rev}")
         return True
     return False
 
@@ -104,7 +116,7 @@ def find(
         # links from wikipedia
         all_links = Wikipedia(status, start_path, rev).scrape_page()
 
-        # return if found
+        # return if found in links on current page before bothering to score them
         if found_in_page(status, history, all_links, rev_root_path):
             return
 
@@ -116,6 +128,10 @@ def find(
 
         # add them onto scores set
         history.bulk_add_to_scores(nlp_scores)
+
+        # return if found in the intersection between forward and reverse search
+        if found_in_intersect(status, history, rev_root_path):
+            return
 
     # Dont kick off next find find if task is done or no more pages left to search
     if not status.is_active() or len(history.scores) < 1:

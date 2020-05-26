@@ -16,7 +16,9 @@ class Wikipedia:
         Args:
             status: Status of current search.
             start_path: History of current query.
-            rev: are we going in reverse?
+            rev: are we doing search in reverse?
+                Forward search uses links.
+                Reverse search uses linkshere.
         """
         self.status = status
         self.start_path = start_path
@@ -30,7 +32,10 @@ class Wikipedia:
     def build_payload(self, json_response=None) -> Dict[str, str]:
         """Creates a payload for the API request.
 
-        This function takes care of setting "plcontinue" based on request received.
+        Based on if were searching forward or searching in reverse:
+            This function takes care of setting "plcontinue"/"lhcontinue" based on request received.
+            Sets how many to return "pllimit"/"lhlimit"
+            Sets type of query "links"/"linkshere"
 
         Args:
             json_response: Response obtained from querying MediaWiki API.
@@ -71,6 +76,13 @@ class Wikipedia:
 
     @staticmethod
     def link_check(link: str):
+        """Is link a wikipedia category.
+
+        Args:
+            link: Link we are checking.
+
+        """
+        # List of ignored start paths of links
         ignore_links = ["Talk:", "Wikipedia:", "Template:", "Template talk:", "Help:", "Category:", "Portal:"]
         for ignore_link in ignore_links:
             if link.startswith(ignore_link):
@@ -78,12 +90,10 @@ class Wikipedia:
         return True
 
     def scrape_page(self) -> List[str]:
-        """Scrape links from Wikipedia page queried.
+        """Scrape links/linkshere from Wikipedia page queried.
 
         Incomplete responses have a continue clause pointing to the rest of the data.
-        To get rest of data: send a new request using the "plcontinue" from the response.
-
-        Returns: List of links on wikipedia page queried.
+        To get rest of data: send a new request using the "plcontinue"/"lhcontinue" from the response.
 
         """
         params = self.build_payload()

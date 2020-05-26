@@ -32,6 +32,7 @@ def nlp_cls(
 @pytest.fixture()
 def get_celery_app_override(monkeypatch, celery_app):
     from common import nlp
+
     monkeypatch.setattr(nlp, "app", celery_app)
 
 

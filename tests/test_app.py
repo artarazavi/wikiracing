@@ -24,7 +24,9 @@ def test_build_root_path():
 
 @pytest.fixture
 def flask_app(celery_app, redis_mock_status):
-    flask_app = create_flask_app(celery_app, redis_mock_status, {"TESTING": True, "SERVER_NAME": "api"})
+    flask_app = create_flask_app(
+        celery_app, redis_mock_status, {"TESTING": True, "SERVER_NAME": "api"}
+    )
     return flask_app
 
 
@@ -37,7 +39,9 @@ def client(flask_app):
 def test_find(client, flask_app, redis_mock_status):
     def mock_find(*args, **kwargs):
         redis_mock_status.hset("Mike Tyson-New York City", "active", "done")
-        redis_mock_status.hset("Mike Tyson-New York City", "results", json.dumps(["mock1", "mock2"]))
+        redis_mock_status.hset(
+            "Mike Tyson-New York City", "results", json.dumps(["mock1", "mock2"])
+        )
         redis_mock_status.hset("Mike Tyson-New York City", "end_time", 20.5)
         return None
 
@@ -52,4 +56,6 @@ def test_find(client, flask_app, redis_mock_status):
         while res.data.decode() == "Pending":
             sleep(0.5)
             res = client.get(url)
-    assert res.data.decode() == "solution is: [\"mock1\", \"mock2\"] time spent: 20.5 seconds"
+    assert (
+        res.data.decode() == 'solution is: ["mock1", "mock2"] time spent: 20.5 seconds'
+    )
