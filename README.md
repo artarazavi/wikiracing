@@ -60,7 +60,7 @@ $ docker-compose -f docker-compose-tests.yml up
     
 ## Spacy Config
 #### To pick which spacy dictionary you wish to use       
-Replace spacy lang with one of your choice by prepending env variables to the docker-compose   
+Replace spacy language with one of your choice by prepending env variables to the docker-compose.   
 SPACY_LANG = en_core_web_sm || en_core_web_md (default is en_core_web_md) || en_core_web_lg   
 SPACY_LOCAL = local || remote (default is remote)   
 Use remote to grab the Spacy model from the internet.
@@ -68,30 +68,30 @@ Use remote to grab the Spacy model from the internet.
 $ SPACY_LANG="en_core_web_sm" SPACY_LOCAL="remote" docker-compose build
 $ SPACY_LANG="en_core_web_sm" SPACY_LOCAL="remote" docker-compose up
 ```
-Do same for testing
+Do same for testing.
 
-#### Alternatively for a faster build you can grab the file from Spacy and store it locally 
-Create a local assets folder at wikiracing/nlp/assets and download the spacy file into that folder.   
+#### Alternatively for a faster build you can grab the model from Spacy and store it locally 
+Create a local assets folder at wikiracing/nlp/assets and download and decompress the spacy file into that folder.   
 - [en_core_web_sm](https://github.com/explosion/spacy-models/releases//tag/en_core_web_sm-2.2.5)
 - [en_core_web_md](https://github.com/explosion/spacy-models/releases//tag/en_core_web_md-2.2.5)
 - [en_core_web_lg](https://github.com/explosion/spacy-models/releases//tag/en_core_web_lg-2.2.5)   
          
-Replace spacy lang with one of your choice by prepending env variables to the docker-compose   
+Replace spacy language with one of your choice by prepending env variables to the docker-compose   
 SPACY_LANG = en_core_web_sm || en_core_web_md (default is en_core_web_md) || en_core_web_lg   
 SPACY_LOCAL = local || remote (default is remote)   
-Use local Spacy model.
+Use local Spacy model to load locally stored file.
 ```
 $ SPACY_LANG="en_core_web_lg" SPACY_LOCAL="local" docker-compose build
 $ SPACY_LANG="en_core_web_lg" SPACY_LOCAL="local" docker-compose up
 ```
-Do same for testing
+Do same for testing.
 
  
 ## Benchmarks
-- From Tennessee to Sloth:   
+- ***From Tennessee to Sloth***:   
 ["Tennessee", "Evangelicalism", "Piety", "Gluttony", "Greed", "Panic", "William Beebe", "Sloth"]   
 42.57 Seconds local run.
-- From Mike Tyson to Potato:   
+- ***From Mike Tyson to Potato***:   
 ["Mike Tyson", "Donald Curry", "Marsala", "Poland", "Potato"]   
 56.87 Seconds local run.
 
@@ -102,7 +102,7 @@ Do same for testing
     - Learned how to get links and linkshere from Media Wiki API first day.
 - Develop algorithm in simple BFS (2-3 Days):
     - Get simple algorithm working.
-    - This includes designing making celery tasks and redis db to fit project needs.
+    - This includes designing celery tasks and redis db to fit project needs.
 - Look into Spacy similarity scoring (1-2 Hours)
     - Follow example found [here](https://www.geeksforgeeks.org/python-word-similarity-using-spacy/).
     - Reference [Spacy API on Similarity](https://spacy.io/usage/vectors-similarity).
@@ -119,7 +119,7 @@ Do same for testing
 - Scrap previous algorithm, build improved wiki racer search (1-2 Days)
     - Take advantage of Redis build in sorted sets data type to store pages in order of similarity score.
     - Learn the traversed path taken to discover each new page and store in db.
-    - Allows for searching based on highest scoring page in each round (because each page has a discover traversed path).
+    - Allows for searching based on highest scoring page in each round (because each page has a discovery traversed path).
 - Testing (3 Days)
     - Mocking flask, celery, and redis made this very difficult and time consuming.
     - Ensuring tests had access to directories they were testing within docker-compose.
@@ -132,11 +132,11 @@ Do same for testing
         - Forward search based on links.
         - Backward search based on links-here.
         - Give forward search and reverse search their own task queues so they dont swamp each other.
-        - Search to see if there is any intersections in pages found from both forward and reversed search upon discovery of new links.
-        - If intersection found build a solution path from the intersection points traversed paths.
+        - Check to see if there is any intersections in pages found from both forward and reversed search upon discovery of new links.
+        - If intersection found build a solution path from the intersection point's traversed paths.
     - Add in tests for new algorithm.
 - Finishing Touches (3 Hrs)
     - Test all weird edge cases.
     - Update README.
-    - Add in ability to specify Spacy file version and location
-    - Add in ability to specify logging level error/info
+    - Add in ability to specify Spacy file version and location.
+    - Add in ability to specify logging level.
