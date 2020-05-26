@@ -101,11 +101,22 @@ def find(root_path: str, start_path: str, rev_root_path: str, rev=False):
         rev_root_path: The path reversed of this one.
         rev: are we going in reverse?
     """
+    # Weird edge cases:
+    if not root_path or not start_path or rev_root_path:
+        raise ValueError('You need to specify root_path, start_path, and rev_root_path')
+
     status = Status(status_db, root_path)
 
     # Dont start find if task is done
     if not status.is_active():
         return
+
+    # Weird edge cases:
+    if start_path == status.end_path:
+        result = [start_path]
+        status.finalize_results(result)
+        status_rev = Status(status_db, rev_root_path)
+        status_rev.finalize_results(result)
 
     # Populates history
     history = History(status, visited_db, scores_db, traversed_db, start_path,)
