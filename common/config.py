@@ -26,6 +26,8 @@ FLUSH_ALL = True if environ.get("FLUSH_ALL", "False").lower() == "true" else Fal
 
 REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{CELERY_DB_ID}"
 
+SPACY_LOCAL = environ.get("SPACY_LOCAL", "remote")
+
 
 # celery setup
 def get_celery_app(celery_app_name="tasks", redis_url=REDIS_URL):

@@ -2,7 +2,7 @@ import sys
 
 import spacy
 
-from common.config import get_celery_app, logger, SPACY_LANG
+from common.config import get_celery_app, logger, SPACY_LANG, SPACY_LOCAL
 
 app = get_celery_app()
 
@@ -11,18 +11,21 @@ app = get_celery_app()
 
 logger.info("Loading NLP Info...")
 # spacy file if downloaded and stored locally
-spacy_file = "assets/en_core_web_lg-2.2.5/en_core_web_lg/en_core_web_lg-2.2.5"
+spacy_file = f"assets/{SPACY_LANG}-2.2.5/{SPACY_LANG}/{SPACY_LANG}-2.2.5"
 
 if "pytest" in sys.modules:
     spacy_file = (
-        "../nlp/assets/en_core_web_lg-2.2.5/en_core_web_lg/en_core_web_lg-2.2.5"
+        f"../nlp/assets/{SPACY_LANG}-2.2.5/{SPACY_LANG}/{SPACY_LANG}-2.2.5"
     )
 
 # use this if you downloaded spacy and stored it locally
 # nlp = spacy.load(spacy_file)
 
 # reads spacy model downloaded upon build
-nlp = spacy.load(SPACY_LANG)
+if SPACY_LOCAL == 'local':
+    nlp = spacy.load(spacy_file)
+else:
+    nlp = spacy.load(SPACY_LANG)
 
 stop_list = set("for a of the and to in go list".split())
 

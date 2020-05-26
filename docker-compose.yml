@@ -61,11 +61,15 @@ services:
       context: nlp
       dockerfile: Dockerfile
       args:
-        SPACY_LANG: ${SPACY_LANG}
+        SPACY_LANG: "${SPACY_LANG}"
+        SPACY_LOCAL: "${SPACY_LOCAL}"
     depends_on:
       - redis
     env_file:
       - .env
+    environment:
+      SPACY_LANG: "${SPACY_LANG}"
+      SPACY_LOCAL: "${SPACY_LOCAL}"
 
   # Redis Admin UI
   redis-commander:

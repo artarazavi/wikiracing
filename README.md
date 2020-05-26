@@ -50,11 +50,42 @@ $ docker-compose -f docker-compose-tests.yml up
 	```
 	http://localhost:8888/
     ``` 
-- Orphan containers: These can happen sometimes just kill them.   
-    Run command:   
-    ```
-    $ docker-compose down --remove-orphans
-    ```
+## Spacy
+#### To pick which spacy dictionary you wish to use    
+Spacy Language: [en_core_web_sm, en_core_web_md, en_core_web_lg]   
+Replace spacy lang with one of your choice by prepending env variables to the docker-compose   
+SPACY_LANG = en_core_web_sm || en_core_web_md (default is en_core_web_md) || en_core_web_lg   
+SPACY_LOCAL = local || remote (default is remote)   
+Use remote to grab the Spacy model from the internet.
+```
+$ SPACY_LANG="en_core_web_sm" SPACY_LOCAL="remote" docker-compose build
+$ SPACY_LANG="en_core_web_sm" SPACY_LOCAL="remote" docker-compose up
+```
+To test
+```
+$ SPACY_LANG="en_core_web_sm" SPACY_LOCAL="remote" docker-compose -f docker-compose-tests.yml build
+SPACY_LANG="en_core_web_sm" SPACY_LOCAL="remote" docker-compose -f docker-compose-tests.yml up
+
+```
+#### Alternatively for a faster build you can grab the file from Spacy and store it locally 
+Create a local assets folder at wikiracing/nlp/assets and download the spacy file into that folder.
+    - [en_core_web_sm](https://github.com/explosion/spacy-models/releases//tag/en_core_web_sm-2.2.5)
+    - [en_core_web_md](https://github.com/explosion/spacy-models/releases//tag/en_core_web_md-2.2.5)
+    - [en_core_web_lg](https://github.com/explosion/spacy-models/releases//tag/en_core_web_lg-2.2.5)   
+         
+Replace spacy lang with one of your choice by prepending env variables to the docker-compose   
+SPACY_LANG = en_core_web_sm || en_core_web_md (default is en_core_web_md) || en_core_web_lg   
+SPACY_LOCAL = local || remote (default is remote)   
+Use local Spacy model.
+```
+$ SPACY_LANG="en_core_web_lg" SPACY_LOCAL="local" docker-compose build
+$ SPACY_LANG="en_core_web_lg" SPACY_LOCAL="local" docker-compose up
+```
+To build tests:
+```
+$ SPACY_LANG="en_core_web_lg" SPACY_LOCAL="local" docker-compose -f docker-compose-tests.yml build
+$ SPACY_LANG="en_core_web_lg" SPACY_LOCAL="local" docker-compose -f docker-compose-tests.yml up
+```
   
 ## Benchmarks Achieved
 - From Tennessee to Sloth:   
@@ -100,8 +131,10 @@ $ docker-compose -f docker-compose-tests.yml up
     - Update search to go both forward and backward:
         - Forward search based on links.
         - Backward search based on links-here.
+        - Give forward search and reverse search their own task queues so they dont swamp each other.
         - Search to see if there is any intersections in pages found from both forward and reversed search upon discovery of new links.
         - If intersection found build a solution path from the intersection points traversed paths.
     - Add in tests for new algorithm.
     - Test all weird edge cases.
     - Update README.
+    - Add in ability to specify Spacy file version and location

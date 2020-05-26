@@ -11,11 +11,15 @@ services:
       context: .
       dockerfile: tests/Dockerfile
       args:
-        SPACY_LANG: ${SPACY_LANG}
+        SPACY_LANG: "${SPACY_LANG}"
+        SPACY_LOCAL: "${SPACY_LOCAL}"
     depends_on:
       - redis
     env_file:
       - .env
+    environment:
+      SPACY_LANG: "${SPACY_LANG}"
+      SPACY_LOCAL: "${SPACY_LOCAL}"
     tty: true
 
 

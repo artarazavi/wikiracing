@@ -21,6 +21,7 @@ def test_config_init():
     assert config.FLUSH_ALL in [True, False]
     assert config.REDIS_URL in ["redis://redis:6379/0", "redis://localhost:6379/0"]
     assert config.SPACY_LANG in ["en_core_web_md", "en_core_web_lg"]
+    assert config.SPACY_LOCAL in ["local", "remote"]
 
 
 def test_get_celery_app():

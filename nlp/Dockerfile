@@ -10,11 +10,12 @@ RUN pip3 install --upgrade pip setuptools
 # Upon next dc up we wont have to grab the dictionary again
 #############################################################
 ARG SPACY_LANG
+ARG SPACY_LOCAL
 #ENV SPACY_LANG             en_core_web_lg
 ENV SPACY_VERSION    2.2
 
 RUN pip3 install spacy==${SPACY_VERSION}
-RUN python3 -m spacy download ${SPACY_LANG}
+RUN bash -c "echo \"spacy stored locally? $SPACY_LOCAL\"; if [[ \"$SPACY_LOCAL\" == 'remote' ]]; then echo \"Dowloading spacy\"; python3 -m spacy download ${SPACY_LANG}; else echo \"using local spacy\"; fi"
 
 COPY . /src/app/nlp
 WORKDIR /src/app/nlp
