@@ -159,20 +159,20 @@ def test_find_on_first_page(
 @pytest.fixture()
 def status_cls_edge_case(redis_mock_status):
     return Status(
-        redis_mock_status,
-        "Mike Tyson-Mike Tyson",
-        "Mike Tyson",
-        "Mike Tyson",
+        redis_mock_status, "Mike Tyson-Mike Tyson", "Mike Tyson", "Mike Tyson",
     )
+
 
 @pytest.fixture()
 def status_cls_edge_case_rev(redis_mock_status):
     return Status(
-        redis_mock_status,
-        "Mike Tyson-Mike Tyson",
-        "Mike Tyson",
-        "Mike Tyson",
+        redis_mock_status, "Mike Tyson-Mike Tyson", "Mike Tyson", "Mike Tyson",
     )
+
+
+class MockNLPEdgeCase(NLP):
+    def score_links(self, all_links):
+        return [["Mike Tyson", 1.0]]
 
 
 def test_find_edge_case(
@@ -183,10 +183,8 @@ def test_find_edge_case(
     status_cls_edge_case,
     status_cls_edge_case_rev,
 ):
-    monkeypatch.setattr(requests, "get", mock_get)
-    find.find(
-        "Mike Tyson-Mike Tyson", "Mike Tyson", "Mike Tyson-Mike Tyson"
-    )
+    monkeypatch.setattr(find, "NLP", MockNLPEdgeCase)
+    find.find("Mike Tyson-Mike Tyson", "Mike Tyson", "Mike Tyson-Mike Tyson")
     sleep(5)
     assert status_cls_edge_case.results_str() == json.dumps(["Mike Tyson"])
 

@@ -50,7 +50,6 @@ def test_set_no_longer_active(status_cls):
     assert status_cls.active == "done"
 
 
-# TODO fix this
 def test_unknown_status(status_cls):
     assert status_cls.is_active() is True
     status_cls.set_to_redis("active", "Broken")
