@@ -75,7 +75,7 @@ class Wikipedia:
         return requests.get("https://en.wikipedia.org/w/api.php", params).json()
 
     @staticmethod
-    def link_check(link: str):
+    def link_check(link: str) -> bool:
         """Is link a wikipedia category.
 
         Args:
