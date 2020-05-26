@@ -51,8 +51,7 @@ $ docker-compose -f docker-compose-tests.yml up
 	http://localhost:8888/
     ``` 
 ## Spacy
-#### To pick which spacy dictionary you wish to use    
-Spacy Language: [en_core_web_sm, en_core_web_md, en_core_web_lg]   
+#### To pick which spacy dictionary you wish to use       
 Replace spacy lang with one of your choice by prepending env variables to the docker-compose   
 SPACY_LANG = en_core_web_sm || en_core_web_md (default is en_core_web_md) || en_core_web_lg   
 SPACY_LOCAL = local || remote (default is remote)   
@@ -64,14 +63,14 @@ $ SPACY_LANG="en_core_web_sm" SPACY_LOCAL="remote" docker-compose up
 To test
 ```
 $ SPACY_LANG="en_core_web_sm" SPACY_LOCAL="remote" docker-compose -f docker-compose-tests.yml build
-SPACY_LANG="en_core_web_sm" SPACY_LOCAL="remote" docker-compose -f docker-compose-tests.yml up
+$ SPACY_LANG="en_core_web_sm" SPACY_LOCAL="remote" docker-compose -f docker-compose-tests.yml up
 
 ```
 #### Alternatively for a faster build you can grab the file from Spacy and store it locally 
-Create a local assets folder at wikiracing/nlp/assets and download the spacy file into that folder.
-    - [en_core_web_sm](https://github.com/explosion/spacy-models/releases//tag/en_core_web_sm-2.2.5)
-    - [en_core_web_md](https://github.com/explosion/spacy-models/releases//tag/en_core_web_md-2.2.5)
-    - [en_core_web_lg](https://github.com/explosion/spacy-models/releases//tag/en_core_web_lg-2.2.5)   
+Create a local assets folder at wikiracing/nlp/assets and download the spacy file into that folder.   
+- [en_core_web_sm](https://github.com/explosion/spacy-models/releases//tag/en_core_web_sm-2.2.5)
+- [en_core_web_md](https://github.com/explosion/spacy-models/releases//tag/en_core_web_md-2.2.5)
+- [en_core_web_lg](https://github.com/explosion/spacy-models/releases//tag/en_core_web_lg-2.2.5)   
          
 Replace spacy lang with one of your choice by prepending env variables to the docker-compose   
 SPACY_LANG = en_core_web_sm || en_core_web_md (default is en_core_web_md) || en_core_web_lg   
