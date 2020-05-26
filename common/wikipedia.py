@@ -83,7 +83,15 @@ class Wikipedia:
 
         """
         # List of ignored start paths of links
-        ignore_links = ["Talk:", "Wikipedia:", "Template:", "Template talk:", "Help:", "Category:", "Portal:"]
+        ignore_links = [
+            "Talk:",
+            "Wikipedia:",
+            "Template:",
+            "Template talk:",
+            "Help:",
+            "Category:",
+            "Portal:",
+        ]
         for ignore_link in ignore_links:
             if link.startswith(ignore_link):
                 return False
@@ -108,13 +116,21 @@ class Wikipedia:
             links = None
             if self.rev:
                 links = (
-                    json_response.get("query", {}).get("pages", [{}])[0].get("linkshere", [])
+                    json_response.get("query", {})
+                    .get("pages", [{}])[0]
+                    .get("linkshere", [])
                 )
             else:
                 links = (
-                    json_response.get("query", {}).get("pages", [{}])[0].get("links", [])
+                    json_response.get("query", {})
+                    .get("pages", [{}])[0]
+                    .get("links", [])
                 )
-            all_links += [link["title"] for link in links if link.get("title") and self.link_check(link.get("title"))]
+            all_links += [
+                link["title"]
+                for link in links
+                if link.get("title") and self.link_check(link.get("title"))
+            ]
             if "batchcomplete" not in json_response and len(json_response.keys()) > 1:
                 params = self.build_payload(json_response)
             else:

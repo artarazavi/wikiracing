@@ -47,6 +47,7 @@ class History:
             page    traversed_path_str
 
     """
+
     def __init__(
         self,
         status: "Status",
@@ -246,7 +247,7 @@ class History:
         """
         return self.redis_client_traversed.hkeys(root_path)
 
-    def traversed_intersection(self, root_path:str, rev_root_path: str) -> List[str]:
+    def traversed_intersection(self, root_path: str, rev_root_path: str) -> List[str]:
         """The intersection between traversed paths of find and find in reverse.
 
         Args:
@@ -254,7 +255,10 @@ class History:
             rev_root_path: The reverse find root_path.
 
         """
-        return list(set(self.traversed_keys(root_path)) & set(self.traversed_keys(rev_root_path)))
+        return list(
+            set(self.traversed_keys(root_path))
+            & set(self.traversed_keys(rev_root_path))
+        )
 
     def any_traversed_path(self, root_path: str, page: str) -> List[str]:
         """Gets traversed path of any page in the redis traversed db based on hash key and page title.
@@ -269,11 +273,7 @@ class History:
         """
         if not self.redis_client_traversed.hget(root_path, page):
             return list()
-        return json.loads(
-            self.redis_client_traversed.hget(
-                root_path, page
-            ).decode()
-        )
+        return json.loads(self.redis_client_traversed.hget(root_path, page).decode())
 
     def intersection_path(self, root_path: str, rev_root_path: str) -> List[str]:
         """The end result path based on an intersecting page in search and search reversed.
@@ -288,7 +288,9 @@ class History:
         intersection = self.traversed_intersection(root_path, rev_root_path)
         intersection_page = intersection[0].decode()
         traversed_path_root_path = self.any_traversed_path(root_path, intersection_page)
-        traversed_path_rev_root_path = self.any_traversed_path(rev_root_path, intersection_page)
+        traversed_path_rev_root_path = self.any_traversed_path(
+            rev_root_path, intersection_page
+        )
         traversed_path_rev_root_path.pop()
         traversed_path_rev_root_path.reverse()
         path_to_goal = traversed_path_root_path + traversed_path_rev_root_path

@@ -55,7 +55,11 @@ def create_flask_app(celery_app, status_db, testing_config=None):
 
         if Status.exists(status_db, root_path_forward):
             status = Status(status_db, root_path_forward)
-            return "Pending" if status.results_pending() else f"solution is: {status.results_str()} time spent: {str(status.end_time)} seconds"
+            return (
+                "Pending"
+                if status.results_pending()
+                else f"solution is: {status.results_str()} time spent: {str(status.end_time)} seconds"
+            )
 
         # GOING FORWARD###########################################################
         # Initialize status
@@ -63,7 +67,11 @@ def create_flask_app(celery_app, status_db, testing_config=None):
 
         task_forward = app.send_task(
             "tasks.find",
-            kwargs=dict(root_path=root_path_forward, start_path=start_path, rev_root_path=root_path_backward),
+            kwargs=dict(
+                root_path=root_path_forward,
+                start_path=start_path,
+                rev_root_path=root_path_backward,
+            ),
             queue="find",
         )
 
@@ -76,7 +84,12 @@ def create_flask_app(celery_app, status_db, testing_config=None):
 
         task_backward = app.send_task(
             "tasks.find",
-            kwargs=dict(root_path=root_path_backward, start_path=end_path, rev_root_path=root_path_forward, rev=True),
+            kwargs=dict(
+                root_path=root_path_backward,
+                start_path=end_path,
+                rev_root_path=root_path_forward,
+                rev=True,
+            ),
             queue="find_rev",
         )
 
@@ -88,17 +101,17 @@ def create_flask_app(celery_app, status_db, testing_config=None):
     return app_router
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = sys.argv[1:]
     host = "localhost"
     port = 5000
 
     for x in range(len(args)):
         if args[x] == "--host":
-            host = args[x+1]
+            host = args[x + 1]
             x += 1
         if args[x] == "--port":
-            port = int(args[x+1])
+            port = int(args[x + 1])
             x += 1
 
     flask_app = create_flask_app(config_celery_app, config_status_db)

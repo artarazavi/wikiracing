@@ -21,7 +21,9 @@ scores_db = get_scores_db()
 traversed_db = get_traversed_db()
 
 
-def found_in_page(status: Status, history: History, all_links: List[str], rev_root_path: str) -> bool:
+def found_in_page(
+    status: Status, history: History, all_links: List[str], rev_root_path: str
+) -> bool:
     """Whether wiki race end path was found in newly discovered links.
 
     If the  wiki race end path was discovered on current page:
@@ -43,7 +45,9 @@ def found_in_page(status: Status, history: History, all_links: List[str], rev_ro
         path_rev.reverse()
         # also set results in the reverse search db
         status_rev.finalize_results(path_rev)
-        logger.info(f"End link found!! path traversed and time to complete: {path} or {path_rev}")
+        logger.info(
+            f"End link found!! path traversed and time to complete: {path} or {path_rev}"
+        )
         return True
     return False
 
@@ -71,15 +75,14 @@ def found_in_intersect(status: Status, history: History, rev_root_path: str):
         # also set results in the reverse search db
         status_rev.finalize_results(path_to_goal_rev)
         logger.info(
-            f"Intersection End link found!! path traversed and time to complete: {path_to_goal} or {path_to_goal_rev}")
+            f"Intersection End link found!! path traversed and time to complete: {path_to_goal} or {path_to_goal_rev}"
+        )
         return True
     return False
 
 
 @app.task(name="tasks.find")
-def find(
-    root_path: str, start_path: str, rev_root_path: str, rev=False
-):
+def find(root_path: str, start_path: str, rev_root_path: str, rev=False):
     """Celery task that plays wiki racer game.
 
     This task only kicks off if the search is still active.
@@ -140,6 +143,11 @@ def find(
     # kick off another find task with highest scoring page found so far
     app.send_task(
         "tasks.find",
-        kwargs=dict(root_path=root_path, start_path=history.next_highest_score(), rev_root_path=rev_root_path, rev=rev),
+        kwargs=dict(
+            root_path=root_path,
+            start_path=history.next_highest_score(),
+            rev_root_path=rev_root_path,
+            rev=rev,
+        ),
         queue="find_rev" if rev else "find",
     )

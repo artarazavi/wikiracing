@@ -2,11 +2,7 @@ import sys
 
 import spacy
 
-from common.config import (
-    get_celery_app,
-    logger,
-    SPACY_LANG
-)
+from common.config import get_celery_app, logger, SPACY_LANG
 
 app = get_celery_app()
 

@@ -10,7 +10,7 @@ from .wikipedia_data import (
     MIKE_TYSON_RESPONSE_1,
     MIKE_TYSON_RESPONSE_2,
     MIKE_TYSON_RESPONSE_1_REV,
-    MIKE_TYSON_RESPONSE_2_REV
+    MIKE_TYSON_RESPONSE_2_REV,
 )
 
 redis_proc = factories.redis_proc(host="redis", port=6379, logsdir="/tmp")
@@ -128,6 +128,7 @@ def test_build_payload_with_response(wikipedia_cls):
         "plcontinue": "39027|0|Ahmed_Salim",
     }
 
+
 def test_build_payload_rev_no_response(wikipedia_cls_rev):
     assert wikipedia_cls_rev.build_payload() == {
         "action": "query",
@@ -159,6 +160,3 @@ def test_link_check(wikipedia_cls):
     assert not wikipedia_cls.link_check("Help: stuff")
     assert not wikipedia_cls.link_check("Category: stuff")
     assert not wikipedia_cls.link_check("Portal: stuff")
-
-
-
