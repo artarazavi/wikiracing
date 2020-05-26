@@ -38,10 +38,11 @@ def get_celery_app(celery_app_name="tasks", redis_url=REDIS_URL):
         }
     )
     celery_app.conf.task_default_queue = "default"
-
+    # find_rev
     celery_app.conf.task_queues = (
         Queue("default", routing_key="task.#"),
         Queue("find_task", routing_key="find.#"),
+        Queue("find_rev_task", routing_key="find_rev.#"),
         Queue("nlp_task", routing_key="nlp.#"),
     )
 
@@ -49,6 +50,7 @@ def get_celery_app(celery_app_name="tasks", redis_url=REDIS_URL):
     celery_app.conf.task_routes = (
         [
             ("tasks.find.*", {"queue": "find_task"}),
+            ("tasks.find.*", {"queue": "find_rev_task"}),
             ("tasks.nlp.*", {"queue": "nlp_task"}),
         ],
     )

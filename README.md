@@ -1,5 +1,5 @@
 # Wikiracing
-A Wikiraceis a race between any number of participants, using links to travel from one Wikipedia page to another.  -Wikipedia
+A Wikirace is a race between any number of participants, using links to travel from one Wikipedia page to another.  -Wikipedia
 
 ## My Solution
 Work smarter not harder:   

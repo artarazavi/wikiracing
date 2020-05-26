@@ -26,6 +26,17 @@ def history_cls(
     return history
 
 
+@pytest.fixture()
+def history_cls_rev(
+    redis_mock_status, redis_mock_visited, redis_mock_scores, redis_mock_traversed
+):
+    status = Status(redis_mock_status, "path_root", "end_path", "start_path")
+    history = History(
+        status, redis_mock_visited, redis_mock_scores, redis_mock_traversed, "end_path",
+    )
+    return history
+
+
 def test_history_init(
     redis_mock_status, redis_mock_visited, redis_mock_scores, redis_mock_traversed
 ):
@@ -151,3 +162,53 @@ def test_bulk_add_to_new_links_traversed_paths(history_cls):
         "path6",
     ]
     assert history_cls.get_new_links_traversed_path("path7") == []
+
+
+def test_traversed_keys(history_cls):
+    new_links = ["path4", "path5", "path6"]
+    history_cls.traversed_path = ["some_path"]
+    history_cls.bulk_add_to_new_links_traversed_paths(new_links)
+    assert history_cls.traversed_keys(history_cls.status.root_path) == [
+        b"start_path",
+        b"path4",
+        b"path5",
+        b"path6",
+    ]
+
+
+def test_traversed_intersection(history_cls, history_cls_rev):
+    new_links = ["path4", "path5", "path6"]
+    history_cls.traversed_path = ["some_path"]
+    history_cls.bulk_add_to_new_links_traversed_paths(new_links)
+
+    new_links_rev = ["path4", "path7", "path8"]
+    history_cls_rev.traversed_path = ["some_path"]
+    history_cls_rev.bulk_add_to_new_links_traversed_paths(new_links_rev)
+
+    assert history_cls.traversed_intersection(
+        history_cls.status.root_path, history_cls_rev.status.root_path
+    ) == [b"path4"]
+
+
+def test_any_traversed_path(history_cls, history_cls_rev):
+    new_links_rev = ["path4"]
+    history_cls_rev.traversed_path = ["some_path"]
+    history_cls_rev.bulk_add_to_new_links_traversed_paths(new_links_rev)
+
+    assert history_cls.any_traversed_path(
+        history_cls_rev.status.root_path, "path4"
+    ) == ["some_path", "path4"]
+
+
+def test_intersection_path(history_cls, history_cls_rev):
+    new_links = ["path4", "path5", "path6"]
+    history_cls.traversed_path = ["some_path"]
+    history_cls.bulk_add_to_new_links_traversed_paths(new_links)
+
+    new_links_rev = ["path4", "path7", "path8"]
+    history_cls_rev.traversed_path = ["some_other_path"]
+    history_cls_rev.bulk_add_to_new_links_traversed_paths(new_links_rev)
+
+    assert history_cls.intersection_path(
+        history_cls.status.root_path, history_cls_rev.status.root_path
+    ) == ["some_path", "path4", "some_other_path"]

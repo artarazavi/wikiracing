@@ -45,7 +45,9 @@ class History:
         root_path:
             page:   traversed_path_str
             page    traversed_path_str
+
     """
+
     def __init__(
         self,
         status: "Status",
@@ -67,6 +69,7 @@ class History:
             redis_client_scores: Redis scored pages db.
             redis_client_traversed: Redis traversed path db.
             start_path: Page being queried in find.
+
         """
 
         # db
@@ -169,6 +172,7 @@ class History:
 
         Notes:
             This reads information from the traversed path redis db.
+
         """
         if not self.redis_client_traversed.hget(self.status.root_path, self.start_path):
             return list()
@@ -230,3 +234,64 @@ class History:
         """
         for link in links:
             self.new_links_set_traversed_path(link)
+
+    def traversed_keys(self, root_path: str) -> List[str]:
+        """Dumps the keys in the redis traversed db for root_path specified.
+
+        Notes:
+            This reads information from the redis traversed path redis db.
+
+        Args:
+            root_path: The key to the hash were looking up in the redis traversed db.
+
+        """
+        return self.redis_client_traversed.hkeys(root_path)
+
+    def traversed_intersection(self, root_path: str, rev_root_path: str) -> List[str]:
+        """The intersection between traversed paths of find and find in reverse.
+
+        Args:
+            root_path: Find root_path.
+            rev_root_path: The reverse find root_path.
+
+        """
+        return list(
+            set(self.traversed_keys(root_path))
+            & set(self.traversed_keys(rev_root_path))
+        )
+
+    def any_traversed_path(self, root_path: str, page: str) -> List[str]:
+        """Gets traversed path of any page in the redis traversed db based on hash key and page title.
+
+        Notes:
+            This reads information from the redis traversed path redis db.
+
+        Args:
+            root_path: The key to the hash were looking up in the redis traversed db.
+            page: Title of page as key under that hash in redis traversed db.
+
+        """
+        if not self.redis_client_traversed.hget(root_path, page):
+            return list()
+        return json.loads(self.redis_client_traversed.hget(root_path, page).decode())
+
+    def intersection_path(self, root_path: str, rev_root_path: str) -> List[str]:
+        """The end result path based on an intersecting page in search and search reversed.
+
+        Args:
+            root_path: Find root_path.
+            rev_root_path: The reverse find root_path.
+
+        Returns: path find + reversed (path find reversed + pop last item)
+
+        """
+        intersection = self.traversed_intersection(root_path, rev_root_path)
+        intersection_page = intersection[0].decode()
+        traversed_path_root_path = self.any_traversed_path(root_path, intersection_page)
+        traversed_path_rev_root_path = self.any_traversed_path(
+            rev_root_path, intersection_page
+        )
+        traversed_path_rev_root_path.pop()
+        traversed_path_rev_root_path.reverse()
+        path_to_goal = traversed_path_root_path + traversed_path_rev_root_path
+        return path_to_goal
