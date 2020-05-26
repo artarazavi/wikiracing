@@ -26,7 +26,22 @@ services:
       - ./find/:/src/app/find
       - ./common/:/src/app/find/common
     entrypoint: celery
-    command: -A find worker -Q find --loglevel=info --concurrency=10
+    command: -A find worker -Q find --loglevel=info --concurrency=5
+    build:
+      context: find
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+    env_file:
+      - .env
+
+  # The find worker service
+  find-rev:
+    volumes:
+      - ./find/:/src/app/find
+      - ./common/:/src/app/find/common
+    entrypoint: celery
+    command: -A find worker -Q find_rev --loglevel=info --concurrency=5
     build:
       context: find
       dockerfile: Dockerfile

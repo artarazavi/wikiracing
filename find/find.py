@@ -1,4 +1,5 @@
 from typing import List
+import json
 
 from common.config import (
     get_celery_app,
@@ -20,7 +21,7 @@ scores_db = get_scores_db()
 traversed_db = get_traversed_db()
 
 
-def found_in_page(status: Status, history: History, all_links: List[str]) -> bool:
+def found_in_page(status: Status, history: History, all_links: List[str], rev_root_path: str) -> bool:
     """Whether wiki race end path was found in newly discovered links.
 
     If the  wiki race end path was discovered on current page:
@@ -31,19 +32,41 @@ def found_in_page(status: Status, history: History, all_links: List[str]) -> boo
         status: Status of current search.
         history: History of current search.
         all_links: List of new links discovered on current query page.
+        rev_root_path: The path reversed of this one.
     """
+    # python intersect
+    # redis supports this throgh SINTER key1 key2
+    status_rev = Status(status_db, rev_root_path)
+    intersection = list(set(history.redis_client_traversed.hkeys(status.root_path)) & set(history.redis_client_traversed.hkeys(rev_root_path)))
     if status.end_path in all_links:
-        path = history.traversed_path
+        path = history.traversed_path.copy()
         path.append(status.end_path)
         status.finalize_results(path)
-        logger.info(f"End link found!! path traversed and time to complete: {path}")
+        path_rev = path.copy()
+        path_rev.reverse()
+        status_rev.finalize_results(path_rev)
+        logger.info(f"End link found!! path traversed and time to complete: {path} or {path_rev}")
+        return True
+    elif intersection:
+        logger.info("INTERSECTION FOUND HOLY SHIT COOL")
+        intersection_page = intersection[0].decode()
+        traversed_path_root_path = json.loads(history.redis_client_traversed.hget(status.root_path, intersection_page).decode())
+        traversed_path_rev_root_path = json.loads(history.redis_client_traversed.hget(rev_root_path, intersection_page).decode())
+        traversed_path_rev_root_path.pop()
+        traversed_path_rev_root_path.reverse()
+        path_to_goal = traversed_path_root_path + traversed_path_rev_root_path
+        status.finalize_results(path_to_goal)
+        path_to_goal_rev = path_to_goal.copy()
+        path_to_goal_rev.reverse()
+        status_rev.finalize_results(path_to_goal_rev)
+        logger.info(f"Intersection End link found from page {intersection_page}!! path traversed and time to complete: {path_to_goal} or {path_to_goal_rev}")
         return True
     return False
 
 
 @app.task(name="tasks.find")
 def find(
-    root_path: str, start_path: str,
+    root_path: str, start_path: str, rev_root_path: str, rev=False
 ):
     """Celery task that plays wiki racer game.
 
@@ -60,6 +83,8 @@ def find(
     Args:
         root_path: Search key composed of wiki racer start page and end page.
         start_path: Page being queried.
+        rev_root_path: The path reversed of this one.
+        rev: are we going in reverse?
     """
     status = Status(status_db, root_path)
 
@@ -77,10 +102,10 @@ def find(
         history.add_to_visited(start_path)
 
         # links from wikipedia
-        all_links = Wikipedia(status, start_path).scrape_page()
+        all_links = Wikipedia(status, start_path, rev).scrape_page()
 
         # return if found
-        if found_in_page(status, history, all_links):
+        if found_in_page(status, history, all_links, rev_root_path):
             return
 
         # score found links
@@ -99,6 +124,6 @@ def find(
     # kick off another find task with highest scoring page found so far
     app.send_task(
         "tasks.find",
-        kwargs=dict(root_path=root_path, start_path=history.next_highest_score(),),
-        queue="find",
+        kwargs=dict(root_path=root_path, start_path=history.next_highest_score(), rev_root_path=rev_root_path, rev=rev),
+        queue="find_rev" if rev else "find",
     )

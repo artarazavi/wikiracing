@@ -46,23 +46,40 @@ def create_flask_app(celery_app, status_db, testing_config=None):
         Returns: results traversed path || "Pending" if not done
 
         """
-        root_path = build_root_path(start_path, end_path)
+        root_path_forward = build_root_path(start_path, end_path)
+        root_path_backward = build_root_path(end_path, start_path)
 
-        if Status.exists(status_db, root_path):
-            status = Status(status_db, root_path)
+        if Status.exists(status_db, root_path_forward):
+            status = Status(status_db, root_path_forward)
             return "Pending" if status.results_pending() else f"solution is: {status.results_str()} time spent: {str(status.end_time)} seconds"
 
+        # GOING FORWARD###########################################################
         # Initialize status
-        status = Status(status_db, root_path, start_path, end_path)
+        status_forward = Status(status_db, root_path_forward, start_path, end_path)
 
-        task = app.send_task(
+        task_forward = app.send_task(
             "tasks.find",
-            kwargs=dict(root_path=root_path, start_path=start_path,),
+            kwargs=dict(root_path=root_path_forward, start_path=start_path, rev_root_path=root_path_backward),
             queue="find",
         )
 
         # Assign associated task id to status table
-        status.task_id = task.id
+        status_forward.task_id = task_forward.id
+        ###########################################################################
+
+        # GOING BACKWARD###########################################################
+        # Initialize status
+        status_backwards = Status(status_db, root_path_backward, end_path, start_path)
+
+        task_backward = app.send_task(
+            "tasks.find",
+            kwargs=dict(root_path=root_path_backward, start_path=end_path, rev_root_path=root_path_forward, rev=True),
+            queue="find_rev",
+        )
+
+        # Assign associated task id to status table
+        status_forward.task_id = task_backward.id
+        ###########################################################################
 
         return "Pending"
 
