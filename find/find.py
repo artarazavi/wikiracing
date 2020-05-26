@@ -52,7 +52,7 @@ def found_in_page(
     return False
 
 
-def found_in_intersect(status: Status, history: History, rev_root_path: str):
+def found_in_intersect(status: Status, history: History, rev_root_path: str) -> bool:
     """Whether wiki race end path was found in newly discovered links.
 
         If the  wiki race end path was discovered through a page both searches found (an intersection)
