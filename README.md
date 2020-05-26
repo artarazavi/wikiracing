@@ -50,3 +50,8 @@ $ docker-compose -f docker-compose-tests.yml up
 	```
 	http://localhost:8888/
     ``` 
+- Orphan containers: These can happen sometimes just kill them.   
+    Run command:   
+    ```
+    $ docker-compose down --remove-orphans
+    ```
