@@ -50,7 +50,14 @@ $ docker-compose -f docker-compose-tests.yml up
 	```
 	http://localhost:8888/
     ``` 
-## Spacy
+- To change logging levels:   
+    LOGGING_LEVEL= ERROR (default logging level) || INFO
+    ```
+    $ LOGGING_LEVEL="INFO" docker-compose build
+    $ LOGGING_LEVEL="INFO" docker-compose up
+    ```
+    
+## Spacy Config
 #### To pick which spacy dictionary you wish to use       
 Replace spacy lang with one of your choice by prepending env variables to the docker-compose   
 SPACY_LANG = en_core_web_sm || en_core_web_md (default is en_core_web_md) || en_core_web_lg   
@@ -60,12 +67,8 @@ Use remote to grab the Spacy model from the internet.
 $ SPACY_LANG="en_core_web_sm" SPACY_LOCAL="remote" docker-compose build
 $ SPACY_LANG="en_core_web_sm" SPACY_LOCAL="remote" docker-compose up
 ```
-To test
-```
-$ SPACY_LANG="en_core_web_sm" SPACY_LOCAL="remote" docker-compose -f docker-compose-tests.yml build
-$ SPACY_LANG="en_core_web_sm" SPACY_LOCAL="remote" docker-compose -f docker-compose-tests.yml up
+Do same for testing
 
-```
 #### Alternatively for a faster build you can grab the file from Spacy and store it locally 
 Create a local assets folder at wikiracing/nlp/assets and download the spacy file into that folder.   
 - [en_core_web_sm](https://github.com/explosion/spacy-models/releases//tag/en_core_web_sm-2.2.5)
@@ -80,13 +83,10 @@ Use local Spacy model.
 $ SPACY_LANG="en_core_web_lg" SPACY_LOCAL="local" docker-compose build
 $ SPACY_LANG="en_core_web_lg" SPACY_LOCAL="local" docker-compose up
 ```
-To build tests:
-```
-$ SPACY_LANG="en_core_web_lg" SPACY_LOCAL="local" docker-compose -f docker-compose-tests.yml build
-$ SPACY_LANG="en_core_web_lg" SPACY_LOCAL="local" docker-compose -f docker-compose-tests.yml up
-```
-  
-## Benchmarks Achieved
+Do same for testing
+
+ 
+## Benchmarks
 - From Tennessee to Sloth:   
 ["Tennessee", "Evangelicalism", "Piety", "Gluttony", "Greed", "Panic", "William Beebe", "Sloth"]   
 42.57 Seconds local run.
@@ -134,6 +134,8 @@ $ SPACY_LANG="en_core_web_lg" SPACY_LOCAL="local" docker-compose -f docker-compo
         - Search to see if there is any intersections in pages found from both forward and reversed search upon discovery of new links.
         - If intersection found build a solution path from the intersection points traversed paths.
     - Add in tests for new algorithm.
+- Finishing Touches (3 Hrs)
     - Test all weird edge cases.
     - Update README.
     - Add in ability to specify Spacy file version and location
+    - Add in ability to specify logging level error/info

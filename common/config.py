@@ -5,7 +5,7 @@ import logging
 from kombu import Queue
 
 # logging set up to figure out errors before importing anything
-LOGGING_LEVEL = environ.get("LOGGING_LEVEL", "INFO")
+LOGGING_LEVEL = environ.get("LOGGING_LEVEL", "ERROR")
 logger = logging.getLogger()
 logger.setLevel(LOGGING_LEVEL)
 

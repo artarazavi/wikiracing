@@ -8,9 +8,9 @@ from common import config
 
 
 def test_config_init():
-    assert config.LOGGING_LEVEL == "INFO"
+    assert config.LOGGING_LEVEL in ["INFO", "ERROR"]
     assert isinstance(config.logger, logging.RootLogger)
-    assert config.logger.level == 20
+    assert config.logger.level in [20, 40]
     assert config.REDIS_HOST in ["localhost", "redis"]
     assert config.REDIS_PORT == 6379
     assert config.CELERY_DB_ID == 0
@@ -20,7 +20,7 @@ def test_config_init():
     assert config.TRAVERSED_DB == 4
     assert config.FLUSH_ALL in [True, False]
     assert config.REDIS_URL in ["redis://redis:6379/0", "redis://localhost:6379/0"]
-    assert config.SPACY_LANG in ["en_core_web_md", "en_core_web_lg"]
+    assert config.SPACY_LANG in ['en_core_web_sm', 'en_core_web_md', 'en_core_web_lg']
     assert config.SPACY_LOCAL in ["local", "remote"]
 
 

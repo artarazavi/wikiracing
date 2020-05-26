@@ -26,7 +26,7 @@ services:
       - ./find/:/src/app/find
       - ./common/:/src/app/find/common
     entrypoint: celery
-    command: -A find worker -Q find --loglevel=info --concurrency=5
+    command: -A find worker -Q find --loglevel=${LOGGING_LEVEL} --concurrency=5
     build:
       context: find
       dockerfile: Dockerfile
@@ -41,7 +41,7 @@ services:
       - ./find/:/src/app/find
       - ./common/:/src/app/find/common
     entrypoint: celery
-    command: -A find worker -Q find_rev --loglevel=info --concurrency=5
+    command: -A find worker -Q find_rev --loglevel=${LOGGING_LEVEL} --concurrency=5
     build:
       context: find
       dockerfile: Dockerfile
@@ -56,13 +56,14 @@ services:
       - ./nlp/:/src/app/nlp
       - ./common/:/src/app/nlp/common
     entrypoint: celery
-    command: -A nlp worker -Q nlp --loglevel=info --concurrency=10
+    command: -A nlp worker -Q nlp --loglevel=${LOGGING_LEVEL} --concurrency=10
     build:
       context: nlp
       dockerfile: Dockerfile
       args:
         SPACY_LANG: "${SPACY_LANG}"
         SPACY_LOCAL: "${SPACY_LOCAL}"
+        LOGGING_LEVEL: "${LOGGING_LEVEL}"
     depends_on:
       - redis
     env_file:
@@ -70,13 +71,16 @@ services:
     environment:
       SPACY_LANG: "${SPACY_LANG}"
       SPACY_LOCAL: "${SPACY_LOCAL}"
+      LOGGING_LEVEL: "${LOGGING_LEVEL}"
 
   # Redis Admin UI
   redis-commander:
     image: rediscommander/redis-commander
     restart: always
     environment:
-      - REDIS_HOSTS=local:redis:6379:0,status:redis:6379:1,visited:redis:6379:2,scores:redis:6379:3, traversed:redis:6379:4
+      # To not freeze redis commander dont load tasks queue only load for debugging
+      # REDIS_HOSTS=local:redis:6379:0,status:redis:6379:1,visited:redis:6379:2,scores:redis:6379:3, traversed:redis:6379:4
+      - REDIS_HOSTS=status:redis:6379:1,visited:redis:6379:2,scores:redis:6379:3, traversed:redis:6379:4
     ports:
       - "127.0.0.1:8081:8081"
 
