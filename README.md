@@ -10,7 +10,7 @@ Work smarter not harder:
    
 ![Architecture Diagram](/images/architecture_diagram.png)  
    
-All previous solutions found online rely on breadth first search to look through all the links on Wikipedia with no prior context. Instead of searching blindly with no context, use a natural language processing engine to seek out pages with high similarity scores with respect to the goal end page and visit those pages first. Distribute this work across multiple Celery workers to allow for parallel processing.  
+All previous solutions found online rely on breadth first search to look through all the links on Wikipedia with no prior context. Instead of searching blindly with no context, use a natural language processing engine to seek out pages with high similarity scores with respect to the goal end page and visit those pages first. Run the same search going from start page to end page both forwards and in reverse and meet somewhere in the middle. Distribute this work across multiple Celery workers to allow for parallel processing.  
 
 ## How to Run:
 This depends on having Docker and Docker Compose installed and setup.   
