@@ -102,8 +102,8 @@ def find(root_path: str, start_path: str, rev_root_path: str, rev=False):
         rev: are we going in reverse?
     """
     # Weird edge cases:
-    if not root_path or not start_path or rev_root_path:
-        raise ValueError('You need to specify root_path, start_path, and rev_root_path')
+    if not root_path or not start_path or not rev_root_path:
+        raise ValueError(f"You need to specify root_path, start_path, and rev_root_path")
 
     status = Status(status_db, root_path)
 

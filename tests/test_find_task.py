@@ -156,6 +156,41 @@ def test_find_on_first_page(
     assert status_cls.results_str() == json.dumps(["Mike Tyson", "Albany, New York"])
 
 
+@pytest.fixture()
+def status_cls_edge_case(redis_mock_status):
+    return Status(
+        redis_mock_status,
+        "Mike Tyson-Mike Tyson",
+        "Mike Tyson",
+        "Mike Tyson",
+    )
+
+@pytest.fixture()
+def status_cls_edge_case_rev(redis_mock_status):
+    return Status(
+        redis_mock_status,
+        "Mike Tyson-Mike Tyson",
+        "Mike Tyson",
+        "Mike Tyson",
+    )
+
+
+def test_find_edge_case(
+    celery_app,
+    monkeypatch,
+    celery_worker,
+    celery_mock_find,
+    status_cls_edge_case,
+    status_cls_edge_case_rev,
+):
+    monkeypatch.setattr(requests, "get", mock_get)
+    find.find(
+        "Mike Tyson-Mike Tyson", "Mike Tyson", "Mike Tyson-Mike Tyson"
+    )
+    sleep(5)
+    assert status_cls_edge_case.results_str() == json.dumps(["Mike Tyson"])
+
+
 class MockNLP(NLP):
     def score_links(self, all_links):
         return [["Adultery", 0.5], ["Adult Swim", 0.9], ["Adult Movie", 0.7]]
